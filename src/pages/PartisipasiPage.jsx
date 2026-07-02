@@ -1,17 +1,25 @@
 // src/pages/PartisipasiPage.jsx
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getGlobalConfig } from '../lib/firestore';
 
 export default function PartisipasiPage() {
   const totalKaryawan = 1452; // Total karyawan tetap
   const [selesai, setSelesai] = useState(1246); // Angka dasar awal
 
-  // Cek memori browser pas halaman dibuka
+  // Ambil data dari Firestore
   useEffect(() => {
-    const savedCount = localStorage.getItem('survey_count');
-    if (savedCount) {
-      setSelesai(parseInt(savedCount));
+    async function loadData() {
+      try {
+        const config = await getGlobalConfig();
+        if (config.survey_count) {
+          setSelesai(parseInt(config.survey_count));
+        }
+      } catch (err) {
+        console.error("Gagal memuat data partisipasi:", err);
+      }
     }
+    loadData();
   }, []);
 
   // Sistem ngitung otomatis

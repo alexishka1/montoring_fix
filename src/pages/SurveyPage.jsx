@@ -1,11 +1,18 @@
 // src/pages/SurveyPage.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import {
+  getMasterPertanyaan,
+  incrementSurveyCount,
+  addSurveyResult,
+  updateLmxScore
+} from '../lib/firestore';
 
 export default function SurveyPage() {
-  const [fase, setFase] = useState('LMX-7'); 
+  const [fase, setFase] = useState('LOADING'); // Mulai dari loading dulu
   const [skorAkhir, setSkorAkhir] = useState(0);
   const [kategori, setKategori] = useState('');
   const [mdmStep, setMdmStep] = useState(0); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const daftarDivisi = [
     'Human Capital', 'Finance & Accounting', 'Information Technology',
@@ -28,28 +35,43 @@ export default function SurveyPage() {
   ];
 
   // ==========================================
-  // 2. AMBIL DATA LMX-MDM DARI ADMIN SECARA INSTAN
+  // 2. AMBIL DATA LMX-MDM DARI FIRESTORE
   // ==========================================
-  // Pakai lazy initialization biar layar gak putih pas loading
-  const [mdmSections] = useState(() => {
-    const savedQuestions = localStorage.getItem('master_pertanyaan_synora');
-    if (savedQuestions) {
-      const parsedData = JSON.parse(savedQuestions);
-      return parsedData.map(cat => ({
-        title: cat.title,
-        description: `Bagian ini mengevaluasi dimensi ${cat.title}.`,
-        // HANYA MENGAMBIL PERTANYAAN YANG STATUSNYA AKTIF SAJA
-        questions: cat.questions.filter(q => q.status === true).map(q => q.text)
-      }));
+  const [mdmSections, setMdmSections] = useState([]);
+
+  useEffect(() => {
+    async function loadQuestions() {
+      try {
+        const savedCategories = await getMasterPertanyaan();
+        if (savedCategories) {
+          const sections = savedCategories.map(cat => ({
+            title: cat.title,
+            description: `Bagian ini mengevaluasi dimensi ${cat.title}.`,
+            questions: cat.questions.filter(q => q.status === true).map(q => q.text)
+          }));
+          setMdmSections(sections);
+        } else {
+          // Data cadangan kalau Admin belum nyetting apa-apa
+          setMdmSections([
+            { title: "Bagian 1: Affect", description: "Evaluasi kedekatan.", questions: ["Saya merasa nyaman berinteraksi dengan atasan."] },
+            { title: "Bagian 2: Loyalty", description: "Evaluasi kesetiaan.", questions: ["Atasan saya akan membela saya."] },
+            { title: "Bagian 3: Contribution", description: "Evaluasi kontribusi.", questions: ["Saya bersedia bekerja ekstra."] },
+            { title: "Bagian 4: Professional Respect", description: "Evaluasi rasa hormat.", questions: ["Saya kagum dengan kompetensi atasan."] }
+          ]);
+        }
+      } catch (err) {
+        console.error("Gagal memuat pertanyaan:", err);
+        setMdmSections([
+          { title: "Bagian 1: Affect", description: "Evaluasi kedekatan.", questions: ["Saya merasa nyaman berinteraksi dengan atasan."] },
+          { title: "Bagian 2: Loyalty", description: "Evaluasi kesetiaan.", questions: ["Atasan saya akan membela saya."] },
+          { title: "Bagian 3: Contribution", description: "Evaluasi kontribusi.", questions: ["Saya bersedia bekerja ekstra."] },
+          { title: "Bagian 4: Professional Respect", description: "Evaluasi rasa hormat.", questions: ["Saya kagum dengan kompetensi atasan."] }
+        ]);
+      }
+      setFase('LMX-7'); // Selesai loading, tampilkan survei
     }
-    // Data cadangan kalau Admin belum nyetting apa-apa
-    return [
-      { title: "Bagian 1: Affect", description: "Evaluasi kedekatan.", questions: ["Saya merasa nyaman berinteraksi dengan atasan."] },
-      { title: "Bagian 2: Loyalty", description: "Evaluasi kesetiaan.", questions: ["Atasan saya akan membela saya."] },
-      { title: "Bagian 3: Contribution", description: "Evaluasi kontribusi.", questions: ["Saya bersedia bekerja ekstra."] },
-      { title: "Bagian 4: Professional Respect", description: "Evaluasi rasa hormat.", questions: ["Saya kagum dengan kompetensi atasan."] }
-    ];
-  });
+    loadQuestions();
+  }, []);
 
   const [answersLMX7, setAnswersLMX7] = useState({});
   const [answersMDM, setAnswersMDM] = useState({}); 
@@ -60,20 +82,21 @@ export default function SurveyPage() {
   const handleSelectLMX7 = (index, score) => setAnswersLMX7({ ...answersLMX7, [index]: score });
   const handleSelectMDM = (qIndex, score) => setAnswersMDM({ ...answersMDM, [`${mdmStep}-${qIndex}`]: score });
 
-  const selesaikanSurvey = (skor) => {
-    let currentCount = parseInt(localStorage.getItem('survey_count')) || 1246;
-    localStorage.setItem('survey_count', currentCount + 1);
-
-    let divisiData = JSON.parse(localStorage.getItem('lmx_divisi_data')) || {};
-    if (!divisiData[pilihanDivisi]) divisiData[pilihanDivisi] = [];
-    
-    divisiData[pilihanDivisi].push(parseFloat(skor));
-    localStorage.setItem('lmx_divisi_data', JSON.stringify(divisiData));
-
-    setFase('SUCCESS'); 
+  const selesaikanSurvey = async (skor) => {
+    setIsSubmitting(true);
+    try {
+      // Simpan ke Firestore: increment counter + tambah data divisi
+      await incrementSurveyCount();
+      await addSurveyResult(pilihanDivisi, skor);
+      setFase('SUCCESS'); 
+    } catch (err) {
+      console.error("Gagal menyimpan survei:", err);
+      alert("Terjadi kesalahan saat menyimpan. Silakan coba lagi.");
+    }
+    setIsSubmitting(false);
   };
 
-  const handleSubmitLMX7 = () => {
+  const handleSubmitLMX7 = async () => {
     if (!pilihanDivisi) {
       alert("Tolong pilih divisi Anda terlebih dahulu di bagian atas!");
       return;
@@ -89,7 +112,12 @@ export default function SurveyPage() {
     const rataRata = (total / 7).toFixed(2);
     setSkorAkhir(rataRata);
     
-    localStorage.setItem('real_lmx_score', rataRata); 
+    // Simpan skor ke Firestore
+    try {
+      await updateLmxScore(rataRata);
+    } catch (err) {
+      console.error("Gagal update skor:", err);
+    }
 
     let kat = "";
     if (rataRata >= 4.0) kat = "Healthy";
@@ -145,6 +173,20 @@ export default function SurveyPage() {
       </div>
     );
   };
+
+  // ==========================================
+  // TAMPILAN 0: LOADING
+  // ==========================================
+  if (fase === 'LOADING') {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center font-sans">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-gray-500 font-medium">Memuat pertanyaan survei...</p>
+        </div>
+      </div>
+    );
+  }
 
   // ==========================================
   // TAMPILAN 1: FASE LMX-7
@@ -206,9 +248,10 @@ export default function SurveyPage() {
             <div className="flex justify-end">
               <button 
                 onClick={handleSubmitLMX7} 
+                disabled={isSubmitting}
                 className={`px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-sm ${progress === 100 && pilihanDivisi ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
               >
-                Kirim Jawaban
+                {isSubmitting ? 'Mengirim...' : 'Kirim Jawaban'}
               </button>
             </div>
           </div>
@@ -266,8 +309,12 @@ export default function SurveyPage() {
 
           <div className="flex justify-between items-center">
             {mdmStep > 0 ? <button onClick={handlePrevMDM} className="px-6 py-3 rounded-xl font-bold text-sm text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 shadow-sm transition-all">Kembali</button> : <div></div>}
-            <button onClick={handleNextMDM} className="px-8 py-3 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
-              {mdmStep === totalSteps - 1 ? 'Kirim Final' : 'Selanjutnya'}
+            <button 
+              onClick={handleNextMDM} 
+              disabled={isSubmitting}
+              className="px-8 py-3 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            >
+              {isSubmitting ? 'Mengirim...' : (mdmStep === totalSteps - 1 ? 'Kirim Final' : 'Selanjutnya')}
             </button>
           </div>
         </div>
@@ -284,7 +331,7 @@ export default function SurveyPage() {
         <div className="w-20 h-20 bg-gradient-to-tr from-green-400 to-emerald-500 text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-6 shadow-lg shadow-green-200">✓</div>
         <h1 className="text-2xl font-bold text-gray-800 mb-3">Tanggapan Tersimpan!</h1>
         <p className="text-sm text-gray-500 mb-8 leading-relaxed">
-          Terima kasih. Hasil Anda dari divisi <strong>{pilihanDivisi}</strong> telah dienkripsi. Skor: <strong className="text-gray-900 text-base">{skorAkhir} ({kategori})</strong>.
+          Terima kasih. Hasil Anda dari divisi <strong>{pilihanDivisi}</strong> telah disimpan ke database. Skor: <strong className="text-gray-900 text-base">{skorAkhir} ({kategori})</strong>.
         </p>
         <button onClick={() => window.location.reload()} className="w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors shadow-md">
           Ulangi Survei (Mode Demo)

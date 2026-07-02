@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import * as XLSX from 'xlsx';
+import { getDivisiData } from '../lib/firestore';
 
 export default function DivisiPage() {
   const daftarDivisi = [
@@ -12,6 +13,7 @@ export default function DivisiPage() {
 
   const [activeDivisi, setActiveDivisi] = useState('Customer Service');
   const [displayData, setDisplayData] = useState({});
+  const [liveDivisiData, setLiveDivisiData] = useState({});
 
   // 1. DATA DASAR
   const baseDataDivisi = {
@@ -27,22 +29,31 @@ export default function DivisiPage() {
     'General Affairs': { karyawan: 70, responden: 49, overall: 4.30, rendah1: 'Pengakuan atas kontribusi pekerjaan back-office.', rendah2: 'Dukungan budget memadai dari atasan.', rendah3: 'Kejelasan instruksi kerja saat ada event dadakan.' }
   };
 
-  // 2. LOGIKA BACA DATA ASLI
+  // Load data divisi dari Firestore sekali pas awal
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await getDivisiData();
+        setLiveDivisiData(data);
+      } catch (err) {
+        console.error("Gagal memuat data divisi:", err);
+      }
+    }
+    loadData();
+  }, []);
+
+  // 2. LOGIKA BACA DATA ASLI (dari Firestore)
   useEffect(() => {
     let currentBase = baseDataDivisi[activeDivisi] || baseDataDivisi['Customer Service'];
     let finalData = { ...currentBase };
 
-    const savedRaw = localStorage.getItem('lmx_divisi_data');
-    if (savedRaw) {
-      const parsedData = JSON.parse(savedRaw);
-      if (parsedData[activeDivisi] && parsedData[activeDivisi].length > 0) {
-        const scoresArray = parsedData[activeDivisi];
-        const totalSkorAsli = scoresArray.reduce((a, b) => a + b, 0);
-        const realAvg = totalSkorAsli / scoresArray.length;
-        
-        finalData.overall = parseFloat(realAvg.toFixed(2));
-        finalData.responden = currentBase.responden + scoresArray.length; 
-      }
+    if (liveDivisiData[activeDivisi] && liveDivisiData[activeDivisi].length > 0) {
+      const scoresArray = liveDivisiData[activeDivisi];
+      const totalSkorAsli = scoresArray.reduce((a, b) => a + b, 0);
+      const realAvg = totalSkorAsli / scoresArray.length;
+      
+      finalData.overall = parseFloat(realAvg.toFixed(2));
+      finalData.responden = currentBase.responden + scoresArray.length; 
     }
 
     const avg = finalData.overall;
@@ -65,7 +76,7 @@ export default function DivisiPage() {
     finalData.rate = Math.round((finalData.responden / finalData.karyawan) * 100) + '%';
 
     setDisplayData(finalData);
-  }, [activeDivisi]);
+  }, [activeDivisi, liveDivisiData]);
 
   // 3. FUNGSI UNDUH EXCEL (.xlsx)
   const unduhExcelAsli = () => {

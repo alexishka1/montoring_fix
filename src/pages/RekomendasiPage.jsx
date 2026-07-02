@@ -1,5 +1,6 @@
 // src/pages/RekomendasiPage.jsx
 import { useState, useEffect } from 'react';
+import { getActionPlans, saveActionPlans } from '../lib/firestore';
 
 export default function RekomendasiPage() {
   
@@ -31,14 +32,29 @@ export default function RekomendasiPage() {
     }
   ];
 
-  const [rekomendasi, setRekomendasi] = useState(() => {
-    const saved = localStorage.getItem('synora_action_plan_v2');
-    return saved ? JSON.parse(saved) : defaultRekomendasi;
-  });
+  const [rekomendasi, setRekomendasi] = useState(defaultRekomendasi);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load dari Firestore
   useEffect(() => {
-    localStorage.setItem('synora_action_plan_v2', JSON.stringify(rekomendasi));
-  }, [rekomendasi]);
+    async function loadData() {
+      try {
+        const saved = await getActionPlans();
+        if (saved) setRekomendasi(saved);
+      } catch (err) {
+        console.error("Gagal memuat action plans:", err);
+      }
+      setIsLoading(false);
+    }
+    loadData();
+  }, []);
+
+  // Auto-save ke Firestore
+  useEffect(() => {
+    if (!isLoading) {
+      saveActionPlans(rekomendasi).catch(err => console.error("Gagal simpan:", err));
+    }
+  }, [rekomendasi, isLoading]);
 
   const handleUpdateStatus = (id, statusBaru) => {
     setRekomendasi(prev => prev.map(item => 

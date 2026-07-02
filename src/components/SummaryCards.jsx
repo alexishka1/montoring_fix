@@ -1,10 +1,13 @@
 // src/components/SummaryCards.jsx
 import { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { getGlobalConfig, getDivisiData } from '../lib/firestore';
 
 export default function SummaryCards() {
   const [overallScore, setOverallScore] = useState(3.91);
   const [responden, setResponden] = useState(1246);
+  const [liveDivisiData, setLiveDivisiData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const totalKaryawan = 1452;
 
   // DATA REKAPAN 10 DIVISI UNTUK EXCEL MASTER
@@ -22,11 +25,20 @@ export default function SummaryCards() {
   };
 
   useEffect(() => {
-    const savedScore = localStorage.getItem('real_lmx_score');
-    if (savedScore) setOverallScore(parseFloat(savedScore));
-    
-    const savedCount = localStorage.getItem('survey_count');
-    if (savedCount) setResponden(parseInt(savedCount));
+    async function loadData() {
+      try {
+        const config = await getGlobalConfig();
+        if (config.real_lmx_score) setOverallScore(parseFloat(config.real_lmx_score));
+        if (config.survey_count) setResponden(parseInt(config.survey_count));
+
+        const divisiData = await getDivisiData();
+        setLiveDivisiData(divisiData);
+      } catch (err) {
+        console.error("Gagal memuat data dashboard:", err);
+      }
+      setIsLoading(false);
+    }
+    loadData();
   }, []);
 
   const rate = Math.round((responden / totalKaryawan) * 100);
@@ -43,8 +55,7 @@ export default function SummaryCards() {
   // FUNGSI MASTER GENERATE EXCEL MULTI-SHEET UNTUK SEMUA DIVISI
   // ========================================================
   const unduhMasterExcelSemuaDivisi = () => {
-    const savedRaw = localStorage.getItem('lmx_divisi_data');
-    const parsedData = savedRaw ? JSON.parse(savedRaw) : {};
+    const parsedData = liveDivisiData;
 
     // --- SHEET 1: RINGKASAN REKAPAN UTAMA ---
     const rowsRingkasan = [];
@@ -52,7 +63,7 @@ export default function SummaryCards() {
     // --- SHEET 2: DETAIL METRIK DIMENSI ---
     const rowsDetailDimensi = [];
 
-    // Looping gabungin data dummy + data live dari local storage untuk 10 divisi
+    // Looping gabungin data dummy + data live dari Firestore untuk 10 divisi
     Object.keys(baseDataDivisi).forEach((namaDiv) => {
       const base = baseDataDivisi[namaDiv];
       let finalOverall = base.overall;
@@ -136,7 +147,7 @@ export default function SummaryCards() {
             <h3 className="text-xs font-bold text-gray-500 uppercase">Overall LMX Score</h3>
             <p className="text-[10px] text-gray-400 mb-2">(Seluruh Organisasi)</p>
             <div className="flex items-end gap-1">
-              <span className="text-3xl font-bold text-gray-900">{overallScore.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-gray-900">{isLoading ? '...' : overallScore.toFixed(2)}</span>
               <span className="text-sm text-gray-500 mb-1">/5</span>
             </div>
             <p className={`text-[11px] font-bold mt-2 ${kategoriColor}`}>Kategori: {kategoriText}</p>

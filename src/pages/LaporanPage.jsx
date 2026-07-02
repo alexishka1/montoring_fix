@@ -1,11 +1,13 @@
 // src/pages/LaporanPage.jsx
 import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
+import { getGlobalConfig, getDivisiData, getCustomReports, saveCustomReports } from '../lib/firestore';
 
 export default function LaporanPage() {
   const [activeTab, setActiveTab] = useState('pdf');
   const [dataAsliDivisi, setDataAsliDivisi] = useState([]);
   const [skorAsliKeseluruhan, setSkorAsliKeseluruhan] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   // ==========================================
   // STATE: DAFTAR LAPORAN DINAMIS
@@ -21,42 +23,48 @@ export default function LaporanPage() {
     }
   ];
 
-  // Baca dari LocalStorage pas awal render, kalo kosong pake laporanBawaan
-  const [daftarLaporanPdf, setDaftarLaporanPdf] = useState(() => {
-    const savedLaporan = localStorage.getItem('synora_custom_reports');
-    return savedLaporan ? JSON.parse(savedLaporan) : laporanBawaan;
-  });
+  const [daftarLaporanPdf, setDaftarLaporanPdf] = useState(laporanBawaan);
 
-  // Tiap ada laporan baru/dihapus, langsung auto-save ke LocalStorage
+  // Tarik semua data dari Firestore pas awal render
   useEffect(() => {
-    localStorage.setItem('synora_custom_reports', JSON.stringify(daftarLaporanPdf));
-  }, [daftarLaporanPdf]);
+    async function loadData() {
+      try {
+        // Load custom reports
+        const savedReports = await getCustomReports();
+        if (savedReports) setDaftarLaporanPdf(savedReports);
 
+        // Load global config
+        const config = await getGlobalConfig();
+        if (config.real_lmx_score) setSkorAsliKeseluruhan(parseFloat(config.real_lmx_score));
 
-  // ==========================================
-  // TARIK "DATA ASLI" DARI HASIL SURVEI
-  // ==========================================
-  useEffect(() => {
-    const skorKeseluruhan = localStorage.getItem('real_lmx_score');
-    if (skorKeseluruhan) setSkorAsliKeseluruhan(parseFloat(skorKeseluruhan));
-
-    const rawDataDivisi = localStorage.getItem('lmx_divisi_data');
-    if (rawDataDivisi) {
-      const parsedData = JSON.parse(rawDataDivisi);
-      const rekapDivisi = [];
-
-      for (const divisi in parsedData) {
-        const kumpulanSkor = parsedData[divisi];
-        const rataRata = kumpulanSkor.reduce((a, b) => a + b, 0) / kumpulanSkor.length;
-        rekapDivisi.push({
-          "Nama Departemen": divisi,
-          "Total Responden Masuk": kumpulanSkor.length,
-          "Skor Agregat LMX (Max 5.0)": parseFloat(rataRata.toFixed(2))
-        });
+        // Load divisi data
+        const divisiRaw = await getDivisiData();
+        const rekapDivisi = [];
+        for (const divisi in divisiRaw) {
+          const kumpulanSkor = divisiRaw[divisi];
+          const rataRata = kumpulanSkor.reduce((a, b) => a + b, 0) / kumpulanSkor.length;
+          rekapDivisi.push({
+            "Nama Departemen": divisi,
+            "Total Responden Masuk": kumpulanSkor.length,
+            "Skor Agregat LMX (Max 5.0)": parseFloat(rataRata.toFixed(2))
+          });
+        }
+        setDataAsliDivisi(rekapDivisi);
+      } catch (err) {
+        console.error("Gagal memuat data laporan:", err);
       }
-      setDataAsliDivisi(rekapDivisi);
+      setIsLoading(false);
     }
+    loadData();
   }, []);
+
+  // Auto-save laporan ke Firestore tiap ada perubahan
+  useEffect(() => {
+    if (!isLoading && daftarLaporanPdf.length > 0) {
+      saveCustomReports(daftarLaporanPdf).catch(err => console.error("Gagal simpan laporan:", err));
+    }
+  }, [daftarLaporanPdf, isLoading]);
+
 
   // ==========================================
   // FUNGSI: TAMBAH LAPORAN BARU (AJUKAN FORMAT)

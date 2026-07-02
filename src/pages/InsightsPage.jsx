@@ -1,5 +1,6 @@
 // src/pages/InsightsPage.jsx
 import { useState, useEffect } from 'react';
+import { getGlobalConfig } from '../lib/firestore';
 
 export default function InsightsPage() {
   const [skor, setSkor] = useState(3.91); 
@@ -9,8 +10,15 @@ export default function InsightsPage() {
   const [showModalRekomendasi, setShowModalRekomendasi] = useState(false);
 
   useEffect(() => {
-    const savedScore = localStorage.getItem('real_lmx_score');
-    if (savedScore) setSkor(parseFloat(savedScore));
+    async function loadData() {
+      try {
+        const config = await getGlobalConfig();
+        if (config.real_lmx_score) setSkor(parseFloat(config.real_lmx_score));
+      } catch (err) {
+        console.error("Gagal memuat skor:", err);
+      }
+    }
+    loadData();
   }, []);
 
   let statusKesehatan = skor >= 4.0 ? 'Sangat Sehat' : skor >= 3.0 ? 'Perlu Perhatian' : 'Kritis (At Risk)';

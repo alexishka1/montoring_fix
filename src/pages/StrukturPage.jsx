@@ -1,5 +1,6 @@
 // src/pages/StrukturPage.jsx
 import { useState, useEffect } from 'react';
+import { getStruktur, saveStruktur } from '../lib/firestore';
 
 export default function StrukturPage() {
   
@@ -81,18 +82,36 @@ export default function StrukturPage() {
     }
   ];
 
-  // Integrasi State & LocalStorage
-  const [strukturData, setStrukturData] = useState(() => {
-    const saved = localStorage.getItem('synora_hris_struktur');
-    return saved ? JSON.parse(saved) : defaultStruktur;
-  });
+  // Integrasi State & Firestore
+  const [strukturData, setStrukturData] = useState(defaultStruktur);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Ambil data divisi pertama buat jadi menu default aktif di kanan
-  const [activeDivisiId, setActiveDivisiId] = useState(strukturData[0]?.id || '');
+  const [activeDivisiId, setActiveDivisiId] = useState('div_1');
 
+  // Load dari Firestore
   useEffect(() => {
-    localStorage.setItem('synora_hris_struktur', JSON.stringify(strukturData));
-  }, [strukturData]);
+    async function loadData() {
+      try {
+        const saved = await getStruktur();
+        if (saved) {
+          setStrukturData(saved);
+          setActiveDivisiId(saved[0]?.id || 'div_1');
+        }
+      } catch (err) {
+        console.error("Gagal memuat struktur:", err);
+      }
+      setIsLoading(false);
+    }
+    loadData();
+  }, []);
+
+  // Auto-save ke Firestore
+  useEffect(() => {
+    if (!isLoading) {
+      saveStruktur(strukturData).catch(err => console.error("Gagal simpan:", err));
+    }
+  }, [strukturData, isLoading]);
 
   // Cari objek data divisi yang lagi aktif diklik admin
   const activeDivisi = strukturData.find(d => d.id === activeDivisiId) || strukturData[0];

@@ -1,5 +1,6 @@
 // src/pages/DaftarPertanyaan.jsx
 import { useState, useEffect } from 'react';
+import { getMasterPertanyaan, saveMasterPertanyaan } from '../lib/firestore';
 
 // DATA DEFAULT (Dipakai kalau database masih kosong)
 const defaultKategori = [
@@ -25,24 +26,41 @@ const defaultKategori = [
 export default function DaftarPertanyaan() {
   const [kategoriData, setKategoriData] = useState([]);
   const [activeQuestion, setActiveQuestion] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // 1. PAS HALAMAN DIBUKA: Tarik data dari Database (Local Storage)
+  // 1. PAS HALAMAN DIBUKA: Tarik data dari Firestore
   useEffect(() => {
-    const savedQuestions = localStorage.getItem('master_pertanyaan_synora');
-    if (savedQuestions) {
-      setKategoriData(JSON.parse(savedQuestions));
-    } else {
-      setKategoriData(defaultKategori);
-      localStorage.setItem('master_pertanyaan_synora', JSON.stringify(defaultKategori));
+    async function loadData() {
+      try {
+        const saved = await getMasterPertanyaan();
+        if (saved) {
+          setKategoriData(saved);
+        } else {
+          setKategoriData(defaultKategori);
+          await saveMasterPertanyaan(defaultKategori);
+        }
+      } catch (err) {
+        console.error("Gagal memuat pertanyaan:", err);
+        setKategoriData(defaultKategori);
+      }
+      setIsLoading(false);
     }
+    loadData();
   }, []);
 
-  // 2. AUTO-SAVE: Tiap kali kategoriData berubah, langsung save ke Database!
+  // 2. AUTO-SAVE: Tiap kali kategoriData berubah, langsung save ke Firestore!
   useEffect(() => {
-    if (kategoriData.length > 0) {
-      localStorage.setItem('master_pertanyaan_synora', JSON.stringify(kategoriData));
+    if (kategoriData.length > 0 && !isLoading) {
+      setIsSaving(true);
+      saveMasterPertanyaan(kategoriData)
+        .then(() => setIsSaving(false))
+        .catch((err) => {
+          console.error("Gagal menyimpan:", err);
+          setIsSaving(false);
+        });
     }
-  }, [kategoriData]);
+  }, [kategoriData, isLoading]);
 
   // ==========================================
   // FUNGSI CRUD SAMA SEPERTI SEBELUMNYA
@@ -116,11 +134,28 @@ export default function DaftarPertanyaan() {
     })));
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-sm text-gray-400">Memuat pertanyaan...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Render UI
   return (
     <div className="font-sans text-gray-800 pb-10">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Daftar Pertanyaan</h1>
+        {isSaving && (
+          <span className="text-xs text-blue-500 font-medium flex items-center gap-2">
+            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+            Menyimpan ke cloud...
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 items-start">
