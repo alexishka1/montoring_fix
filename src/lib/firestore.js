@@ -55,10 +55,12 @@ export async function updateLmxScore(score) {
 // ================================================
 
 // Simpan hasil survei baru (per karyawan)
-export async function addSurveyResult(divisi, skor) {
+export async function addSurveyResult(divisi, skor, answersLMX7 = {}, answersMDM = {}) {
   await addDoc(collection(db, 'survey_results'), {
     divisi,
     skor: parseFloat(skor),
+    answersLMX7,
+    answersMDM,
     timestamp: serverTimestamp()
   });
 }

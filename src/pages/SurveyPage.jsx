@@ -85,13 +85,13 @@ export default function SurveyPage() {
   const selesaikanSurvey = async (skor) => {
     setIsSubmitting(true);
     try {
-      // Simpan ke Firestore: increment counter + tambah data divisi
+      // Simpan ke Firestore: increment counter + tambah data divisi beserta jawabannya
       await incrementSurveyCount();
-      await addSurveyResult(pilihanDivisi, skor);
+      await addSurveyResult(pilihanDivisi, skor, answersLMX7, answersMDM);
       setFase('SUCCESS'); 
     } catch (err) {
       console.error("Gagal menyimpan survei:", err);
-      alert("Terjadi kesalahan saat menyimpan. Silakan coba lagi.");
+      alert("Terjadi kesalahan saat menyimpan. Pastikan rules Firestore Firebase Anda mengizinkan read/write.");
     }
     setIsSubmitting(false);
   };
