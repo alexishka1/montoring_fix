@@ -1,7 +1,10 @@
 // src/components/DashboardCharts.jsx
+import { useState } from 'react';
 import { BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function DashboardCharts() {
+  const [modalData, setModalData] = useState(null);
+
   // Data statis untuk Bar Chart
   const barData = [
     { name: 'Affect', score: 3.45, prev: 3.28, color: '#3b82f6' }, // Biru
@@ -54,15 +57,24 @@ export default function DashboardCharts() {
 
       {/* 2. Line Chart: Tren Overall */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80 flex flex-col">
-        <h3 className="text-xs font-bold text-gray-800 uppercase mb-4">Tren Overall LMX Score</h3>
-        <div className="flex-1 w-full text-xs">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xs font-bold text-gray-800 uppercase">Tren Overall LMX Score</h3>
+          <span className="text-[10px] text-gray-400 italic">Klik titik pada grafik untuk detail</span>
+        </div>
+        <div className="flex-1 w-full text-xs cursor-pointer">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={lineData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+            <LineChart 
+              data={lineData} 
+              margin={{ top: 20, right: 10, left: -20, bottom: 0 }}
+              onClick={(e) => {
+                if (e && e.activePayload) setModalData(e.activePayload[0].payload);
+              }}
+            >
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 10 }} />
               <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip formatter={(value, name) => [value, name === 'score' ? 'Skor LMX' : name === 'responden' ? 'Responden' : name]} />
-              <Line type="monotone" dataKey="score" stroke="#2563eb" strokeWidth={2} dot={{ r: 4, fill: '#2563eb' }} label={{ position: 'top', fontSize: 10, fill: '#4b5563' }} />
+              <Line type="monotone" dataKey="score" stroke="#2563eb" strokeWidth={2} dot={{ r: 4, fill: '#2563eb' }} activeDot={{ r: 6, cursor: 'pointer' }} label={{ position: 'top', fontSize: 10, fill: '#4b5563' }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -99,6 +111,46 @@ export default function DashboardCharts() {
           Lihat Semua Divisi
         </div>
       </div>
+
+      {/* MODAL POPUP LAPORAN HISTORIS */}
+      {modalData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative border border-gray-100">
+            <button 
+              onClick={() => setModalData(null)} 
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors font-bold cursor-pointer"
+            >
+              ✕
+            </button>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">📅</div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">Laporan Historis</h3>
+                <p className="text-sm text-gray-500">Periode: {modalData.month}</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center">
+                <span className="text-sm font-semibold text-slate-600">Skor Keseluruhan</span>
+                <span className="text-2xl font-bold text-blue-600">{modalData.score}</span>
+              </div>
+              
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center">
+                <span className="text-sm font-semibold text-slate-600">Total Responden</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-gray-800">{modalData.responden}</span>
+                  <span className="text-xs text-gray-500">Karyawan</span>
+                </div>
+              </div>
+              
+              <div className="pt-2 text-center">
+                <p className="text-[10px] text-gray-400 italic">*Data di atas merupakan rekapan akhir pada periode tersebut.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

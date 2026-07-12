@@ -201,72 +201,121 @@ export default function DivisiPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-                <h3 className="text-sm font-bold text-gray-800 mb-6">Tren Skor LMX</h3>
-                <div className="w-full text-xs h-[240px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={lineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                      <XAxis dataKey="bulan" tick={{ fill: '#6b7280' }} />
-                      <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} axisLine={false} tickLine={false} tick={{ fill: '#6b7280' }} />
-                      <Tooltip formatter={(value, name) => [value, name === 'skor' ? 'Skor LMX' : name === 'responden' ? 'Responden' : name]} />
-                      <Line type="monotone" dataKey="skor" stroke={displayData.lineStroke} strokeWidth={3} dot={{ r: 5, fill: displayData.lineStroke }} />
-                    </LineChart>
-                  </ResponsiveContainer>
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-gray-800">Tren Skor LMX</h3>
+                          <span className="text-[10px] text-gray-400 italic">Klik titik pada grafik untuk detail</span>
+                        </div>
+                        <div className="w-full text-xs h-[240px] cursor-pointer">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart 
+                              data={lineData} 
+                              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                              onClick={(e) => {
+                                if (e && e.activePayload) setModalData(e.activePayload[0].payload);
+                              }}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                              <XAxis dataKey="bulan" tick={{ fill: '#6b7280' }} />
+                              <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} axisLine={false} tickLine={false} tick={{ fill: '#6b7280' }} />
+                              <Tooltip formatter={(value, name) => [value, name === 'skor' ? 'Skor LMX' : name === 'responden' ? 'Responden' : name]} />
+                              <Line type="monotone" dataKey="skor" stroke={displayData.lineStroke} strokeWidth={3} dot={{ r: 5, fill: displayData.lineStroke }} activeDot={{ r: 7, cursor: 'pointer' }} />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+                        <h3 className="text-sm font-bold text-gray-800 mb-0">Skor per Dimensi</h3>
+                        <div className="w-full text-[10px] h-[240px]">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData}>
+                              <PolarGrid stroke="#e5e7eb" />
+                              <PolarAngleAxis dataKey="dimensi" tick={{ fill: '#4b5563', fontSize: 11 }} />
+                              <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
+                              <Radar name="Skor" dataKey="skor" stroke={displayData.lineStroke} strokeWidth={2} fill={displayData.lineStroke} fillOpacity={0.4} />
+                            </RadarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-sm font-bold text-gray-800 mb-6">Indikator Terendah</h3>
+                            <div className="flex justify-between text-xs font-bold text-gray-800 border-b pb-3 mb-4"><span>Indikator</span><span>Skor</span></div>
+                            <ul className="text-xs text-gray-600 space-y-4">
+                                <li className="flex justify-between items-start gap-4 pb-4 border-b border-gray-50">
+                                  <span className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span><span>{displayData.rendah1}</span></span>
+                                  <span className="font-bold text-gray-900">{displayData.skor1.toFixed(2)}</span>
+                                </li>
+                                <li className="flex justify-between items-start gap-4 pb-4 border-b border-gray-50">
+                                  <span className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span><span>{displayData.rendah2}</span></span>
+                                  <span className="font-bold text-gray-900">{displayData.skor2.toFixed(2)}</span>
+                                </li>
+                                <li className="flex justify-between items-start gap-4">
+                                  <span className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span><span>{displayData.rendah3}</span></span>
+                                  <span className="font-bold text-gray-900">{displayData.skor3.toFixed(2)}</span>
+                                </li>
+                            </ul>
+                          </div>
+                       </div>
+
+                       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-sm font-bold text-gray-800 mb-6">Rekomendasi untuk {activeDivisi}</h3>
+                            <ul className="text-xs text-gray-600 space-y-5">
+                                <li className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-gray-800 rounded-full mt-1.5 shrink-0"></span><span>Fokus intervensi pada indikator terendah yang tercantum di samping.</span></li>
+                                <li className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-gray-800 rounded-full mt-1.5 shrink-0"></span><span>Tingkatkan komunikasi dan diskusi rutin antara leader dan tim.</span></li>
+                                <li className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-gray-800 rounded-full mt-1.5 shrink-0"></span><span>Lakukan evaluasi ulang (Pulse Survey) bulan depan.</span></li>
+                            </ul>
+                          </div>
+                       </div>
+                    </div>
+
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-                <h3 className="text-sm font-bold text-gray-800 mb-0">Skor per Dimensi</h3>
-                <div className="w-full text-[10px] h-[240px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData}>
-                      <PolarGrid stroke="#e5e7eb" />
-                      <PolarAngleAxis dataKey="dimensi" tick={{ fill: '#4b5563', fontSize: 11 }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
-                      <Radar name="Skor" dataKey="skor" stroke={displayData.lineStroke} strokeWidth={2} fill={displayData.lineStroke} fillOpacity={0.4} />
-                    </RadarChart>
-                  </ResponsiveContainer>
+              {/* MODAL POPUP LAPORAN HISTORIS */}
+              {modalData && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative border border-gray-100">
+                    <button 
+                      onClick={() => setModalData(null)} 
+                      className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors font-bold cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">📅</div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800">Laporan Historis</h3>
+                        <p className="text-sm text-gray-500">Divisi: {activeDivisi} | Periode: {modalData.bulan}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <span className="text-sm font-semibold text-slate-600">Skor Keseluruhan</span>
+                        <span className="text-2xl font-bold text-blue-600">{modalData.skor}</span>
+                      </div>
+                      
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <span className="text-sm font-semibold text-slate-600">Total Responden</span>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-2xl font-bold text-gray-800">{modalData.responden}</span>
+                          <span className="text-xs text-gray-500">Karyawan</span>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-2 text-center">
+                        <p className="text-[10px] text-gray-400 italic">*Data di atas merupakan rekapan akhir divisi pada periode tersebut.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+
             </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-gray-800 mb-6">Indikator Terendah</h3>
-                    <div className="flex justify-between text-xs font-bold text-gray-800 border-b pb-3 mb-4"><span>Indikator</span><span>Skor</span></div>
-                    <ul className="text-xs text-gray-600 space-y-4">
-                        <li className="flex justify-between items-start gap-4 pb-4 border-b border-gray-50">
-                          <span className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span><span>{displayData.rendah1}</span></span>
-                          <span className="font-bold text-gray-900">{displayData.skor1.toFixed(2)}</span>
-                        </li>
-                        <li className="flex justify-between items-start gap-4 pb-4 border-b border-gray-50">
-                          <span className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span><span>{displayData.rendah2}</span></span>
-                          <span className="font-bold text-gray-900">{displayData.skor2.toFixed(2)}</span>
-                        </li>
-                        <li className="flex justify-between items-start gap-4">
-                          <span className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span><span>{displayData.rendah3}</span></span>
-                          <span className="font-bold text-gray-900">{displayData.skor3.toFixed(2)}</span>
-                        </li>
-                    </ul>
-                  </div>
-               </div>
-
-               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-gray-800 mb-6">Rekomendasi untuk {activeDivisi}</h3>
-                    <ul className="text-xs text-gray-600 space-y-5">
-                        <li className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-gray-800 rounded-full mt-1.5 shrink-0"></span><span>Fokus intervensi pada indikator terendah yang tercantum di samping.</span></li>
-                        <li className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-gray-800 rounded-full mt-1.5 shrink-0"></span><span>Tingkatkan komunikasi dan diskusi rutin antara leader dan tim.</span></li>
-                        <li className="flex items-start gap-3"><span className="w-1.5 h-1.5 bg-gray-800 rounded-full mt-1.5 shrink-0"></span><span>Lakukan evaluasi ulang (Pulse Survey) bulan depan.</span></li>
-                    </ul>
-                  </div>
-               </div>
-            </div>
-
-        </div>
-      </div>
-    </div>
-  );
-}
+          );
+        }
