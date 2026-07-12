@@ -1,7 +1,7 @@
 // src/pages/PartisipasiPage.jsx
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { getGlobalConfig } from '../lib/firestore';
+import { getGlobalConfig, createNewPeriod } from '../lib/firestore';
 
 export default function PartisipasiPage() {
   const totalKaryawan = 98; // Total karyawan tetap
@@ -12,7 +12,7 @@ export default function PartisipasiPage() {
     async function loadData() {
       try {
         const config = await getGlobalConfig();
-        if (config.survey_count) {
+        if (config.survey_count !== undefined) {
           setSelesai(parseInt(config.survey_count));
         }
       } catch (err) {
@@ -21,6 +21,20 @@ export default function PartisipasiPage() {
     }
     loadData();
   }, []);
+
+  const handleNewPeriod = async () => {
+    if (window.confirm("Yakin ingin mengakhiri periode ini dan memulai periode baru? Data partisipasi bulan ini akan di-reset ke 0 untuk memulai bulan baru.")) {
+      try {
+        const nextPeriod = await createNewPeriod();
+        setSelesai(0);
+        alert(`Periode baru berhasil dimulai: ${nextPeriod}`);
+        window.location.reload(); // Refresh supaya Header dan semua komponen update
+      } catch (err) {
+        console.error("Gagal buat periode baru:", err);
+        alert("Terjadi kesalahan saat membuat periode baru.");
+      }
+    }
+  };
 
   // Sistem ngitung otomatis
   const belum = totalKaryawan - selesai;
@@ -47,7 +61,10 @@ export default function PartisipasiPage() {
           <h1 className="text-2xl font-bold text-gray-800">Ringkasan Partisipasi (Periode Aktif)</h1>
           <p className="text-sm text-gray-500 mt-1">Pantau tingkat partisipasi karyawan dalam pengisian survei LMX.</p>
         </div>
-        <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors">
+        <button 
+          onClick={handleNewPeriod}
+          className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors cursor-pointer"
+        >
           Buat Periode Baru
         </button>
       </div>

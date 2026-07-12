@@ -21,16 +21,51 @@ export async function getGlobalConfig() {
     const data = docSnap.data();
     // Auto-reset jika data masih pakai skala lama (ribuan)
     if (data.survey_count > 1000) {
-      const resetConfig = { survey_count: 79, real_lmx_score: 3.91 };
+      const resetConfig = { survey_count: 79, real_lmx_score: 3.91, active_period: 'Juli 2026' };
       await setDoc(docRef, resetConfig);
       return resetConfig;
+    }
+    // Handle transisi lama ke baru (yang belum punya active_period)
+    if (!data.active_period) {
+      await updateDoc(docRef, { active_period: 'Juli 2026' });
+      data.active_period = 'Juli 2026';
     }
     return data;
   }
   // Default awal kalau belum ada dokumennya
-  const defaultConfig = { survey_count: 79, real_lmx_score: 3.91 };
+  const defaultConfig = { survey_count: 79, real_lmx_score: 3.91, active_period: 'Juli 2026' };
   await setDoc(docRef, defaultConfig);
   return defaultConfig;
+}
+
+// Fungsi untuk geser ke periode bulan depan dan reset data
+export async function createNewPeriod() {
+  const docRef = doc(db, 'config', 'global');
+  const config = await getGlobalConfig();
+  
+  const currentPeriod = config.active_period || 'Juli 2026';
+  const [bulanStr, tahunStr] = currentPeriod.split(' ');
+  
+  const bulanList = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  let blnIdx = bulanList.indexOf(bulanStr);
+  let tahun = parseInt(tahunStr) || 2026;
+  
+  if (blnIdx === 11) {
+    blnIdx = 0;
+    tahun += 1;
+  } else {
+    blnIdx += 1;
+  }
+  
+  const nextPeriod = `${bulanList[blnIdx]} ${tahun}`;
+  
+  await updateDoc(docRef, {
+    survey_count: 0,
+    real_lmx_score: 0,
+    active_period: nextPeriod
+  });
+  
+  return nextPeriod;
 }
 
 // Tambah counter survei +1

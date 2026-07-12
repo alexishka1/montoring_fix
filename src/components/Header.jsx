@@ -1,10 +1,27 @@
 // src/components/Header.jsx
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserCircle, Bell } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getGlobalConfig } from '../lib/firestore';
 
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [activePeriod, setActivePeriod] = useState('Juli 2026');
+
+  useEffect(() => {
+    async function fetchPeriod() {
+      try {
+        const config = await getGlobalConfig();
+        if (config.active_period) {
+          setActivePeriod(config.active_period);
+        }
+      } catch (e) {
+        console.error('Gagal memuat periode:', e);
+      }
+    }
+    fetchPeriod();
+  }, []);
 
   // Fungsi ganti judul otomatis sesuai halaman yang dibuka
   const getPageTitle = () => {
@@ -34,7 +51,7 @@ export default function Header() {
         
         {/* Info Periode Aktif */}
         <div className="text-sm font-medium text-slate-500 hidden md:block">
-          Periode Aktif: <span className="font-bold text-slate-700">Juli 2026</span>
+          Periode Aktif: <span className="font-bold text-slate-700">{activePeriod}</span>
         </div>
         
         {/* Tombol Notifikasi (Pemanis) */}
