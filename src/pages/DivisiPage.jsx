@@ -118,9 +118,12 @@ export default function DivisiPage() {
 
   const baseSkor = displayData.overall;
   const lineData = [
-    { bulan: 'Des 23', skor: (baseSkor - 0.2).toFixed(2) }, { bulan: 'Jan 24', skor: (baseSkor + 0.1).toFixed(2) },
-    { bulan: 'Feb 24', skor: (baseSkor - 0.1).toFixed(2) }, { bulan: 'Mar 24', skor: (baseSkor - 0.3).toFixed(2) },
-    { bulan: 'Apr 24', skor: (baseSkor + 0.2).toFixed(2) }, { bulan: 'Mei 24', skor: baseSkor },
+    { bulan: 'Des 23', skor: (baseSkor - 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 3) }, 
+    { bulan: 'Jan 24', skor: (baseSkor + 0.1).toFixed(2), responden: Math.max(2, displayData.responden + 2) },
+    { bulan: 'Feb 24', skor: (baseSkor - 0.1).toFixed(2), responden: Math.max(2, displayData.responden - 1) }, 
+    { bulan: 'Mar 24', skor: (baseSkor - 0.3).toFixed(2), responden: Math.max(2, displayData.responden + 3) },
+    { bulan: 'Apr 24', skor: (baseSkor + 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 2) }, 
+    { bulan: 'Mei 24', skor: baseSkor, responden: displayData.responden },
   ];
 
   return (
@@ -206,7 +209,7 @@ export default function DivisiPage() {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                       <XAxis dataKey="bulan" tick={{ fill: '#6b7280' }} />
                       <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} axisLine={false} tickLine={false} tick={{ fill: '#6b7280' }} />
-                      <Tooltip />
+                      <Tooltip formatter={(value, name) => [value, name === 'skor' ? 'Skor LMX' : name === 'responden' ? 'Responden' : name]} />
                       <Line type="monotone" dataKey="skor" stroke={displayData.lineStroke} strokeWidth={3} dot={{ r: 5, fill: displayData.lineStroke }} />
                     </LineChart>
                   </ResponsiveContainer>

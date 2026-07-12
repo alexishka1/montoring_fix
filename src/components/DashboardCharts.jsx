@@ -12,12 +12,12 @@ export default function DashboardCharts() {
 
   // Data statis untuk Line Chart
   const lineData = [
-    { month: 'Des 23', score: 3.62 },
-    { month: 'Jan 24', score: 3.71 },
-    { month: 'Feb 24', score: 3.85 },
-    { month: 'Mar 24', score: 3.78 },
-    { month: 'Apr 24', score: 3.82 },
-    { month: 'Mei 24', score: 3.91 },
+    { month: 'Des 23', score: 3.62, responden: 82 },
+    { month: 'Jan 24', score: 3.71, responden: 88 },
+    { month: 'Feb 24', score: 3.85, responden: 75 },
+    { month: 'Mar 24', score: 3.78, responden: 91 },
+    { month: 'Apr 24', score: 3.82, responden: 84 },
+    { month: 'Mei 24', score: 3.91, responden: 79 },
   ];
 
   // Data statis untuk Tabel Top 5 Divisi
@@ -61,7 +61,7 @@ export default function DashboardCharts() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 10 }} />
               <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-              <Tooltip />
+              <Tooltip formatter={(value, name) => [value, name === 'score' ? 'Skor LMX' : name === 'responden' ? 'Responden' : name]} />
               <Line type="monotone" dataKey="score" stroke="#2563eb" strokeWidth={2} dot={{ r: 4, fill: '#2563eb' }} label={{ position: 'top', fontSize: 10, fill: '#4b5563' }} />
             </LineChart>
           </ResponsiveContainer>
