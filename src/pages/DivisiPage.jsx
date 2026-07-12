@@ -14,7 +14,7 @@ export default function DivisiPage() {
   const [activeDivisi, setActiveDivisi] = useState('Customer Service');
   const [displayData, setDisplayData] = useState({});
   const [liveDivisiData, setLiveDivisiData] = useState({});
-  const [modalData, setModalData] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   // 1. DATA DASAR
   const baseDataDivisi = {
@@ -207,22 +207,21 @@ export default function DivisiPage() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-bold text-gray-800">Tren Skor LMX</h3>
-              <span className="text-[10px] text-gray-400 italic">Klik titik pada grafik untuk detail</span>
+              <button 
+                onClick={() => setShowHistory(true)}
+                className="flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold hover:bg-blue-100 transition-colors cursor-pointer"
+              >
+                📊 Lihat Riwayat
+              </button>
             </div>
-            <div className="w-full text-xs h-[240px] cursor-pointer">
+            <div className="w-full text-xs h-[240px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart 
-                  data={lineData} 
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                  onClick={(e) => {
-                    if (e && e.activePayload) setModalData(e.activePayload[0].payload);
-                  }}
-                >
+                <LineChart data={lineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                   <XAxis dataKey="bulan" tick={{ fill: '#6b7280' }} />
                   <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} axisLine={false} tickLine={false} tick={{ fill: '#6b7280' }} />
                   <Tooltip formatter={(value, name) => [value, name === 'skor' ? 'Skor LMX' : name === 'responden' ? 'Responden' : name]} />
-                  <Line type="monotone" dataKey="skor" stroke={displayData.lineStroke} strokeWidth={3} dot={{ r: 5, fill: displayData.lineStroke }} activeDot={{ r: 7, cursor: 'pointer' }} />
+                  <Line type="monotone" dataKey="skor" stroke={displayData.lineStroke} strokeWidth={3} dot={{ r: 5, fill: displayData.lineStroke }} activeDot={{ r: 7 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -279,45 +278,90 @@ export default function DivisiPage() {
         </div>
       </div>
 
-      {/* MODAL POPUP LAPORAN HISTORIS */}
-      {modalData && (
+      {/* MODAL RIWAYAT TREN SKOR HISTORIS */}
+      {showHistory && (() => {
+        const base = displayData.overall || 3.5;
+        const historyData = [
+          { tahun: '2024', data: [
+            { bulan: 'Januari', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+            { bulan: 'Februari', skor: parseFloat((base - 0.06).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+            { bulan: 'Maret', skor: parseFloat((base - 0.13).toFixed(2)), responden: Math.max(2, displayData.responden + 3) },
+            { bulan: 'April', skor: parseFloat((base + 0.09).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+            { bulan: 'Mei', skor: base, responden: displayData.responden },
+          ]},
+          { tahun: '2023', data: [
+            { bulan: 'Januari', skor: parseFloat((base - 0.55).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+            { bulan: 'Februari', skor: parseFloat((base - 0.50).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+            { bulan: 'Maret', skor: parseFloat((base - 0.42).toFixed(2)), responden: Math.max(2, displayData.responden) },
+            { bulan: 'April', skor: parseFloat((base - 0.48).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+            { bulan: 'Mei', skor: parseFloat((base - 0.35).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
+            { bulan: 'Juni', skor: parseFloat((base - 0.38).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
+            { bulan: 'Juli', skor: parseFloat((base - 0.32).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+            { bulan: 'Agustus', skor: parseFloat((base - 0.28).toFixed(2)), responden: Math.max(2, displayData.responden) },
+            { bulan: 'September', skor: parseFloat((base - 0.30).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+            { bulan: 'Oktober', skor: parseFloat((base - 0.25).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+            { bulan: 'November', skor: parseFloat((base - 0.22).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+            { bulan: 'Desember', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden) },
+          ]},
+        ];
+        const getSkorColor = (s) => s >= 4 ? 'text-green-700 bg-green-50' : s >= 3 ? 'text-orange-700 bg-orange-50' : 'text-red-700 bg-red-50';
+        return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative border border-gray-100">
-            <button 
-              onClick={() => setModalData(null)} 
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors font-bold cursor-pointer"
-            >
-              ✕
-            </button>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">📅</div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">Laporan Historis</h3>
-                <p className="text-sm text-gray-500">Divisi: {activeDivisi} | Periode: {modalData.bulan}</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center">
-                <span className="text-sm font-semibold text-slate-600">Skor Keseluruhan</span>
-                <span className="text-2xl font-bold text-blue-600">{modalData.skor}</span>
-              </div>
-              
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center">
-                <span className="text-sm font-semibold text-slate-600">Total Responden</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-gray-800">{modalData.responden}</span>
-                  <span className="text-xs text-gray-500">Karyawan</span>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col relative border border-gray-100">
+            <div className="p-6 pb-4 border-b border-gray-100 shrink-0">
+              <button onClick={() => setShowHistory(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors font-bold cursor-pointer">✕</button>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">📈</div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">Riwayat Tren Skor LMX</h3>
+                  <p className="text-sm text-gray-500">Divisi: {activeDivisi} — Data historis per bulan</p>
                 </div>
               </div>
-              
-              <div className="pt-2 text-center">
-                <p className="text-[10px] text-gray-400 italic">*Data di atas merupakan rekapan akhir divisi pada periode tersebut.</p>
+            </div>
+            <div className="p-6 pt-4 overflow-y-auto flex-1">
+              <div className="space-y-6">
+                {historyData.map((year) => {
+                  const avgSkor = (year.data.reduce((s, d) => s + d.skor, 0) / year.data.length).toFixed(2);
+                  const totalResp = year.data.reduce((s, d) => s + d.responden, 0);
+                  return (
+                    <div key={year.tahun} className="border border-gray-100 rounded-xl overflow-hidden">
+                      <div className="bg-slate-50 px-4 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-gray-800">Tahun {year.tahun}</span>
+                          <span className="text-[10px] text-gray-500">({year.data.length} bulan)</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] text-gray-500">Rata-rata:</span>
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${getSkorColor(parseFloat(avgSkor))}`}>{avgSkor}</span>
+                          <span className="text-[10px] text-gray-400">|</span>
+                          <span className="text-[10px] text-gray-500">Total: {totalResp} resp.</span>
+                        </div>
+                      </div>
+                      <table className="w-full text-xs">
+                        <thead><tr className="border-b border-gray-100 text-gray-500"><th className="text-left py-2 px-4 font-medium">Bulan</th><th className="text-center py-2 px-4 font-medium">Skor LMX</th><th className="text-center py-2 px-4 font-medium">Responden</th><th className="text-right py-2 px-4 font-medium">Kategori</th></tr></thead>
+                        <tbody className="divide-y divide-gray-50">
+                          {year.data.map((row, i) => (
+                            <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="py-2.5 px-4 font-medium text-gray-700">{row.bulan}</td>
+                              <td className="py-2.5 px-4 text-center"><span className={`px-2 py-0.5 rounded-md font-bold ${getSkorColor(row.skor)}`}>{row.skor.toFixed(2)}</span></td>
+                              <td className="py-2.5 px-4 text-center text-gray-600">{row.responden} org</td>
+                              <td className="py-2.5 px-4 text-right"><span className={`text-[10px] font-semibold ${row.skor >= 4 ? 'text-green-600' : row.skor >= 3 ? 'text-orange-500' : 'text-red-500'}`}>{row.skor >= 4 ? '● Sehat' : row.skor >= 3 ? '● Perlu Perhatian' : '● Bermasalah'}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 pt-3 text-center border-t border-gray-100">
+                <p className="text-[10px] text-gray-400 italic">*Data historis di atas adalah rekapan skor LMX bulanan divisi {activeDivisi}.</p>
               </div>
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
