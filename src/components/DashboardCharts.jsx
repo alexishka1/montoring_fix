@@ -13,26 +13,27 @@ export default function DashboardCharts() {
     { name: 'Professional Respect', score: 4.10, prev: 3.89, color: '#0ea5e9' },
   ];
 
-  // Data statis untuk Line Chart (periode aktif)
+  // Data statis untuk Line Chart (periode aktif 2026)
   const lineData = [
-    { month: 'Des 23', score: 3.62, responden: 82 },
-    { month: 'Jan 24', score: 3.71, responden: 88 },
-    { month: 'Feb 24', score: 3.85, responden: 75 },
-    { month: 'Mar 24', score: 3.78, responden: 91 },
-    { month: 'Apr 24', score: 3.82, responden: 84 },
-    { month: 'Mei 24', score: 3.91, responden: 79 },
+    { month: 'Jan 26', score: 3.62, responden: 82 },
+    { month: 'Feb 26', score: 3.71, responden: 88 },
+    { month: 'Mar 26', score: 3.85, responden: 75 },
+    { month: 'Apr 26', score: 3.78, responden: 91 },
+    { month: 'Mei 26', score: 3.82, responden: 84 },
+    { month: 'Jun 26', score: 3.91, responden: 79 },
   ];
 
   // DATA HISTORIS DUMMY (tahun-tahun sebelumnya)
   const historyData = [
-    { tahun: '2024', data: [
-      { bulan: 'Januari', skor: 3.71, responden: 88 },
-      { bulan: 'Februari', skor: 3.85, responden: 75 },
-      { bulan: 'Maret', skor: 3.78, responden: 91 },
-      { bulan: 'April', skor: 3.82, responden: 84 },
-      { bulan: 'Mei', skor: 3.91, responden: 79 },
+    { tahun: '2026', data: [
+      { bulan: 'Januari', skor: 3.62, responden: 82 },
+      { bulan: 'Februari', skor: 3.71, responden: 88 },
+      { bulan: 'Maret', skor: 3.85, responden: 75 },
+      { bulan: 'April', skor: 3.78, responden: 91 },
+      { bulan: 'Mei', skor: 3.82, responden: 84 },
+      { bulan: 'Juni', skor: 3.91, responden: 79 },
     ]},
-    { tahun: '2023', data: [
+    { tahun: '2025', data: [
       { bulan: 'Januari', skor: 3.15, responden: 72 },
       { bulan: 'Februari', skor: 3.22, responden: 68 },
       { bulan: 'Maret', skor: 3.30, responden: 81 },
@@ -46,7 +47,7 @@ export default function DashboardCharts() {
       { bulan: 'November', skor: 3.58, responden: 80 },
       { bulan: 'Desember', skor: 3.62, responden: 82 },
     ]},
-    { tahun: '2022', data: [
+    { tahun: '2024', data: [
       { bulan: 'Januari', skor: 2.85, responden: 55 },
       { bulan: 'Februari', skor: 2.90, responden: 60 },
       { bulan: 'Maret', skor: 2.95, responden: 58 },
@@ -59,6 +60,20 @@ export default function DashboardCharts() {
       { bulan: 'Oktober', skor: 3.05, responden: 72 },
       { bulan: 'November', skor: 3.12, responden: 69 },
       { bulan: 'Desember', skor: 3.15, responden: 72 },
+    ]},
+    { tahun: '2023', data: [
+      { bulan: 'Januari', skor: 2.50, responden: 45 },
+      { bulan: 'Februari', skor: 2.55, responden: 48 },
+      { bulan: 'Maret', skor: 2.60, responden: 50 },
+      { bulan: 'April', skor: 2.58, responden: 52 },
+      { bulan: 'Mei', skor: 2.65, responden: 55 },
+      { bulan: 'Juni', skor: 2.70, responden: 53 },
+      { bulan: 'Juli', skor: 2.72, responden: 58 },
+      { bulan: 'Agustus', skor: 2.78, responden: 56 },
+      { bulan: 'September', skor: 2.75, responden: 60 },
+      { bulan: 'Oktober', skor: 2.80, responden: 57 },
+      { bulan: 'November', skor: 2.82, responden: 62 },
+      { bulan: 'Desember', skor: 2.85, responden: 55 },
     ]},
   ];
 

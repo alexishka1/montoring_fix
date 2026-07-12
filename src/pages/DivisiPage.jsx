@@ -119,12 +119,12 @@ export default function DivisiPage() {
 
   const baseSkor = displayData.overall;
   const lineData = [
-    { bulan: 'Des 23', skor: (baseSkor - 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 3) }, 
-    { bulan: 'Jan 24', skor: (baseSkor + 0.1).toFixed(2), responden: Math.max(2, displayData.responden + 2) },
-    { bulan: 'Feb 24', skor: (baseSkor - 0.1).toFixed(2), responden: Math.max(2, displayData.responden - 1) }, 
-    { bulan: 'Mar 24', skor: (baseSkor - 0.3).toFixed(2), responden: Math.max(2, displayData.responden + 3) },
-    { bulan: 'Apr 24', skor: (baseSkor + 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 2) }, 
-    { bulan: 'Mei 24', skor: baseSkor, responden: displayData.responden },
+    { bulan: 'Jan 26', skor: (baseSkor - 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 3) }, 
+    { bulan: 'Feb 26', skor: (baseSkor + 0.1).toFixed(2), responden: Math.max(2, displayData.responden + 2) },
+    { bulan: 'Mar 26', skor: (baseSkor - 0.1).toFixed(2), responden: Math.max(2, displayData.responden - 1) }, 
+    { bulan: 'Apr 26', skor: (baseSkor - 0.3).toFixed(2), responden: Math.max(2, displayData.responden + 3) },
+    { bulan: 'Mei 26', skor: (baseSkor + 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 2) }, 
+    { bulan: 'Jun 26', skor: baseSkor, responden: displayData.responden },
   ];
 
   return (
@@ -282,14 +282,15 @@ export default function DivisiPage() {
       {showHistory && (() => {
         const base = displayData.overall || 3.5;
         const historyData = [
-          { tahun: '2024', data: [
-            { bulan: 'Januari', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
-            { bulan: 'Februari', skor: parseFloat((base - 0.06).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
-            { bulan: 'Maret', skor: parseFloat((base - 0.13).toFixed(2)), responden: Math.max(2, displayData.responden + 3) },
-            { bulan: 'April', skor: parseFloat((base + 0.09).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
-            { bulan: 'Mei', skor: base, responden: displayData.responden },
+          { tahun: '2026', data: [
+            { bulan: 'Januari', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
+            { bulan: 'Februari', skor: parseFloat((base + 0.10).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
+            { bulan: 'Maret', skor: parseFloat((base - 0.10).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+            { bulan: 'April', skor: parseFloat((base - 0.30).toFixed(2)), responden: Math.max(2, displayData.responden + 3) },
+            { bulan: 'Mei', skor: parseFloat((base + 0.20).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+            { bulan: 'Juni', skor: base, responden: displayData.responden },
           ]},
-          { tahun: '2023', data: [
+          { tahun: '2025', data: [
             { bulan: 'Januari', skor: parseFloat((base - 0.55).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
             { bulan: 'Februari', skor: parseFloat((base - 0.50).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
             { bulan: 'Maret', skor: parseFloat((base - 0.42).toFixed(2)), responden: Math.max(2, displayData.responden) },
@@ -302,6 +303,20 @@ export default function DivisiPage() {
             { bulan: 'Oktober', skor: parseFloat((base - 0.25).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
             { bulan: 'November', skor: parseFloat((base - 0.22).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
             { bulan: 'Desember', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden) },
+          ]},
+          { tahun: '2024', data: [
+            { bulan: 'Januari', skor: parseFloat((base - 0.80).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
+            { bulan: 'Februari', skor: parseFloat((base - 0.75).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+            { bulan: 'Maret', skor: parseFloat((base - 0.70).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+            { bulan: 'April', skor: parseFloat((base - 0.72).toFixed(2)), responden: Math.max(2, displayData.responden) },
+            { bulan: 'Mei', skor: parseFloat((base - 0.68).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+            { bulan: 'Juni', skor: parseFloat((base - 0.65).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+            { bulan: 'Juli', skor: parseFloat((base - 0.62).toFixed(2)), responden: Math.max(2, displayData.responden) },
+            { bulan: 'Agustus', skor: parseFloat((base - 0.60).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
+            { bulan: 'September', skor: parseFloat((base - 0.58).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+            { bulan: 'Oktober', skor: parseFloat((base - 0.62).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+            { bulan: 'November', skor: parseFloat((base - 0.57).toFixed(2)), responden: Math.max(2, displayData.responden) },
+            { bulan: 'Desember', skor: parseFloat((base - 0.55).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
           ]},
         ];
         const getSkorColor = (s) => s >= 4 ? 'text-green-700 bg-green-50' : s >= 3 ? 'text-orange-700 bg-orange-50' : 'text-red-700 bg-red-50';
