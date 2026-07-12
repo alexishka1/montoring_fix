@@ -18,10 +18,17 @@ export async function getGlobalConfig() {
   const docRef = doc(db, 'config', 'global');
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
-    return docSnap.data();
+    const data = docSnap.data();
+    // Auto-reset jika data masih pakai skala lama (ribuan)
+    if (data.survey_count > 1000) {
+      const resetConfig = { survey_count: 79, real_lmx_score: 3.91 };
+      await setDoc(docRef, resetConfig);
+      return resetConfig;
+    }
+    return data;
   }
   // Default awal kalau belum ada dokumennya
-  const defaultConfig = { survey_count: 1246, real_lmx_score: 3.91 };
+  const defaultConfig = { survey_count: 79, real_lmx_score: 3.91 };
   await setDoc(docRef, defaultConfig);
   return defaultConfig;
 }
@@ -30,9 +37,9 @@ export async function getGlobalConfig() {
 export async function incrementSurveyCount() {
   const docRef = doc(db, 'config', 'global');
   const docSnap = await getDoc(docRef);
-  if (!docSnap.exists()) {
-    await setDoc(docRef, { survey_count: 1247, real_lmx_score: 3.91 });
-    return 1247;
+  if (!docSnap.exists() || (docSnap.exists() && docSnap.data().survey_count > 1000)) {
+    await setDoc(docRef, { survey_count: 80, real_lmx_score: 3.91 });
+    return 80;
   }
   await updateDoc(docRef, { survey_count: increment(1) });
   const updated = await getDoc(docRef);
@@ -44,7 +51,7 @@ export async function updateLmxScore(score) {
   const docRef = doc(db, 'config', 'global');
   const docSnap = await getDoc(docRef);
   if (!docSnap.exists()) {
-    await setDoc(docRef, { survey_count: 1246, real_lmx_score: parseFloat(score) });
+    await setDoc(docRef, { survey_count: 79, real_lmx_score: parseFloat(score) });
   } else {
     await updateDoc(docRef, { real_lmx_score: parseFloat(score) });
   }
