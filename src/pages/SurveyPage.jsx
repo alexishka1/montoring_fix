@@ -125,8 +125,8 @@ export default function SurveyPage() {
     else kat = "At Risk";
     setKategori(kat);
 
-    // LOGIKA PDF KLIEN: Skor di bawah 4.0 WAJIB masuk LMX-MDM
-    if (rataRata < 4.0) {
+    // LOGIKA KLIEN TERBARU: Skor di bawah 3.00 WAJIB masuk LMX-MDM
+    if (rataRata < 3.0) {
       setFase('LMX-MDM'); 
       setMdmStep(0); 
     } else {
