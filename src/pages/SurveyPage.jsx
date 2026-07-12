@@ -192,7 +192,38 @@ export default function SurveyPage() {
   // TAMPILAN 1: FASE LMX-7
   // ==========================================
   if (fase === 'LMX-7') {
-    const progress = Math.round((Object.keys(answersLMX7).length / 7) * 100);
+    const answeredKeys = Object.keys(answersLMX7);
+    const progress = Math.round((answeredKeys.length / 7) * 100);
+    
+    // Hitung rata-rata sementara
+    let currentTotal = 0;
+    for (let key in answersLMX7) currentTotal += answersLMX7[key];
+    const currentRataRata = answeredKeys.length > 0 ? (currentTotal / answeredKeys.length) : 0;
+
+    // Tentukan warna tombol berdasarkan 3 kriteria
+    let btnColorClass = 'bg-gray-200 text-gray-400 cursor-not-allowed';
+    let progressColorClass = 'bg-blue-600';
+    
+    if (progress === 100 && pilihanDivisi) {
+      if (currentRataRata < 3.0) {
+        // 1-2 (Merah)
+        btnColorClass = 'bg-red-600 text-white hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5';
+        progressColorClass = 'bg-red-600';
+      } else if (currentRataRata < 4.0) {
+        // 3 (Kuning/Amber)
+        btnColorClass = 'bg-amber-500 text-white hover:bg-amber-600 hover:shadow-lg hover:-translate-y-0.5';
+        progressColorClass = 'bg-amber-500';
+      } else {
+        // 4-5 (Hijau)
+        btnColorClass = 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg hover:-translate-y-0.5';
+        progressColorClass = 'bg-emerald-600';
+      }
+    } else if (answeredKeys.length > 0) {
+      // Warna progress bar dinamis saat sedang mengisi
+      if (currentRataRata < 3.0) progressColorClass = 'bg-red-500';
+      else if (currentRataRata < 4.0) progressColorClass = 'bg-amber-500';
+      else progressColorClass = 'bg-emerald-500';
+    }
 
     return (
       <div className="min-h-screen bg-[#f8fafc] py-8 px-4 font-sans text-gray-800">
@@ -227,10 +258,10 @@ export default function SurveyPage() {
                   <h1 className="text-xl font-bold text-gray-800">Bagian Awal: Pulse Survey</h1>
                   <p className="text-xs text-gray-500 mt-1">Berikan penilaian Anda terhadap atasan langsung Anda.</p>
                 </div>
-                <span className="text-2xl font-bold text-blue-600">{progress}%</span>
+                <span className={`text-2xl font-bold ${progress === 100 ? (currentRataRata < 3 ? 'text-red-600' : currentRataRata < 4 ? 'text-amber-500' : 'text-emerald-600') : 'text-blue-600'}`}>{progress}%</span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-2.5">
-                <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                <div className={`${progressColorClass} h-2.5 rounded-full transition-all duration-500`} style={{ width: `${progress}%` }}></div>
               </div>
             </div>
 
@@ -248,8 +279,8 @@ export default function SurveyPage() {
             <div className="flex justify-end">
               <button 
                 onClick={handleSubmitLMX7} 
-                disabled={isSubmitting}
-                className={`px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-sm ${progress === 100 && pilihanDivisi ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                disabled={isSubmitting || progress < 100 || !pilihanDivisi}
+                className={`px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-sm ${btnColorClass}`}
               >
                 {isSubmitting ? 'Mengirim...' : 'Kirim Jawaban'}
               </button>
@@ -267,24 +298,35 @@ export default function SurveyPage() {
     const currentSection = mdmSections[mdmStep];
     const totalSteps = mdmSections.length;
     const progress = Math.round(((mdmStep) / totalSteps) * 100);
+    
+    // Tentukan tema warna berdasarkan kategori skor LMX
+    const isModerate = kategori === "Moderate";
+    const themeBg = isModerate ? "bg-amber-50/30" : "bg-red-50/30";
+    const themeGradient = isModerate ? "from-amber-500 to-orange-600" : "from-red-600 to-rose-700";
+    const themeBorder = isModerate ? "border-amber-500" : "border-red-500";
+    const themeText = isModerate ? "text-amber-500" : "text-red-500";
+    const themeCardBorder = isModerate ? "border-amber-50" : "border-red-50";
+    const themeButton = isModerate ? "bg-amber-500 hover:bg-amber-600" : "bg-red-600 hover:bg-red-700";
 
     return (
-      <div className="min-h-screen bg-red-50/30 py-8 px-4 font-sans text-gray-800 transition-colors duration-500">
+      <div className={`min-h-screen ${themeBg} py-8 px-4 font-sans text-gray-800 transition-colors duration-500`}>
         <div className="max-w-3xl mx-auto">
-          <div className="bg-gradient-to-r from-red-600 to-rose-700 p-8 rounded-3xl shadow-lg text-white mb-6 relative overflow-hidden">
+          <div className={`bg-gradient-to-r ${themeGradient} p-8 rounded-3xl shadow-lg text-white mb-6 relative overflow-hidden`}>
              <div className="relative z-10">
                <span className="bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full inline-block mb-4 backdrop-blur-sm border border-white/30">
                  Skor LMX: {skorAkhir} ({kategori}) | Divisi: {pilihanDivisi}
                </span>
                <h1 className="text-2xl font-bold mb-2">Survei Diagnostik Mendalam</h1>
-               <p className="text-white/90 text-sm max-w-xl">Skor Anda di bawah 4.0, mohon selesaikan beberapa pertanyaan tambahan berikut untuk diagnosis lebih lanjut.</p>
+               <p className="text-white/90 text-sm max-w-xl">
+                 {isModerate ? "Skor Anda berada di level Menengah (Moderate), mohon selesaikan beberapa pertanyaan tambahan berikut." : "Skor Anda di bawah 3.0 (At Risk), mohon selesaikan beberapa pertanyaan tambahan berikut untuk diagnosis lebih lanjut."}
+               </p>
              </div>
           </div>
 
-          <div className="bg-white p-6 rounded-t-2xl shadow-sm border-b-4 border-red-500 mb-4">
+          <div className={`bg-white p-6 rounded-t-2xl shadow-sm border-b-4 ${themeBorder} mb-4`}>
              <div className="flex justify-between items-center mb-3">
                <span className="text-xs font-bold text-gray-500 tracking-wider">HALAMAN {mdmStep + 1} DARI {totalSteps}</span>
-               <span className="text-xs font-bold text-red-500">{progress}% Selesai</span>
+               <span className={`text-xs font-bold ${themeText}`}>{progress}% Selesai</span>
              </div>
              <h2 className="text-2xl font-bold text-gray-800">{currentSection?.title || "Kategori"}</h2>
              <p className="text-sm text-gray-500 mt-1">{currentSection?.description}</p>
@@ -293,7 +335,7 @@ export default function SurveyPage() {
           <div className="space-y-4 mb-8">
             {currentSection?.questions?.length > 0 ? (
               currentSection.questions.map((q, qIndex) => (
-                <div key={qIndex} className="bg-white p-6 rounded-2xl shadow-sm border border-red-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div key={qIndex} className={`bg-white p-6 rounded-2xl shadow-sm border ${themeCardBorder} flex flex-col md:flex-row md:items-center justify-between gap-6`}>
                   <div className="md:w-3/5"><p className="text-sm font-medium text-gray-700 leading-relaxed">{q}</p></div>
                   <div className="md:w-2/5 flex justify-end">
                     <RatingScale currentAnswer={answersMDM[`${mdmStep}-${qIndex}`]} onSelect={(val) => handleSelectMDM(qIndex, val)} />
@@ -312,7 +354,7 @@ export default function SurveyPage() {
             <button 
               onClick={handleNextMDM} 
               disabled={isSubmitting}
-              className="px-8 py-3 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+              className={`px-8 py-3 rounded-xl font-bold text-sm text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all ${themeButton}`}
             >
               {isSubmitting ? 'Mengirim...' : (mdmStep === totalSteps - 1 ? 'Kirim Final' : 'Selanjutnya')}
             </button>
