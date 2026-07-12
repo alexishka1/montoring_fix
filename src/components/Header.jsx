@@ -8,6 +8,7 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activePeriod, setActivePeriod] = useState('Juli 2026');
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   useEffect(() => {
     async function fetchPeriod() {
@@ -54,11 +55,76 @@ export default function Header() {
           Periode Aktif: <span className="font-bold text-slate-700">{activePeriod}</span>
         </div>
         
-        {/* Tombol Notifikasi (Pemanis) */}
-        <button className="text-slate-400 hover:text-blue-600 transition-colors relative ml-2">
-          <Bell className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-        </button>
+        {/* Tombol Notifikasi */}
+        <div className="relative">
+          <button 
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+            className={`text-slate-400 hover:text-blue-600 transition-colors relative ml-2 p-1.5 rounded-full ${isNotifOpen ? 'bg-blue-50 text-blue-600' : ''}`}
+          >
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+          </button>
+
+          {/* Dropdown Notifikasi */}
+          {isNotifOpen && (
+            <>
+              <div 
+                className="fixed inset-0 z-40" 
+                onClick={() => setIsNotifOpen(false)}
+              ></div>
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                  <h3 className="font-bold text-slate-800 text-sm">Notifikasi</h3>
+                  <button className="text-[10px] font-semibold text-blue-600 hover:underline">Tandai semua dibaca</button>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  
+                  {/* Notif 1: Alert Skor */}
+                  <div className="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                      <span className="text-red-600 text-xs font-bold">!</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">Skor Information Technology Menurun</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">Skor LMX divisi IT turun menjadi 2.75. Indikator "Penghargaan Ide" berada di titik terendah.</p>
+                      <p className="text-[9px] text-slate-400 mt-1 font-medium">10 menit yang lalu</p>
+                    </div>
+                  </div>
+
+                  {/* Notif 2: Pencapaian Survey */}
+                  <div className="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                      <span className="text-green-600 text-xs">📈</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">Partisipasi Human Capital 100%</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">Seluruh karyawan di divisi Human Capital telah menyelesaikan survey periode ini.</p>
+                      <p className="text-[9px] text-slate-400 mt-1 font-medium">2 jam yang lalu</p>
+                    </div>
+                  </div>
+
+                  {/* Notif 3: Sistem */}
+                  <div className="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <span className="text-blue-600 text-xs">🗓️</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">Periode Baru Dimulai</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">Periode evaluasi LMX untuk bulan ini telah resmi dibuka.</p>
+                      <p className="text-[9px] text-slate-400 mt-1 font-medium">1 hari yang lalu</p>
+                    </div>
+                  </div>
+
+                </div>
+                <div className="p-3 text-center border-t border-slate-100 bg-slate-50">
+                  <button className="text-xs font-bold text-slate-600 hover:text-blue-600 transition-colors">
+                    Lihat Semua Notifikasi
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Garis Pembatas */}
         <div className="h-8 w-px bg-slate-200 mx-1"></div>
