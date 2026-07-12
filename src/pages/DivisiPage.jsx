@@ -17,16 +17,16 @@ export default function DivisiPage() {
 
   // 1. DATA DASAR
   const baseDataDivisi = {
-    'Human Capital': { karyawan: 45, responden: 42, overall: 4.52, rendah1: 'Frekuensi diskusi informal di luar jam kerja.', rendah2: 'Keseimbangan beban kerja tim.', rendah3: 'Fasilitas pendukung kesejahteraan.' },
-    'Finance & Accounting': { karyawan: 55, responden: 50, overall: 4.15, rendah1: 'Atasan memberikan fleksibilitas waktu saat tutup buku.', rendah2: 'Apresiasi atas pencapaian target efisiensi.', rendah3: 'Komunikasi lintas divisi untuk kelancaran dokumen.' },
-    'Information Technology': { karyawan: 120, responden: 105, overall: 2.75, rendah1: 'Atasan menghargai ide teknis yang saya berikan.', rendah2: 'Komunikasi visi proyek dari atasan jelas.', rendah3: 'Atasan melindungi tim dari tekanan departemen lain.' },
-    'Marketing & Sales': { karyawan: 200, responden: 170, overall: 3.65, rendah1: 'Atasan memberikan support nyata saat tekanan target tinggi.', rendah2: 'Atasan mendengarkan keluhan kondisi lapangan.', rendah3: 'Pengembangan karir dan sistem reward jelas.' },
-    'Operations': { karyawan: 150, responden: 123, overall: 3.25, rendah1: 'Distribusi beban kerja operasional terasa adil.', rendah2: 'Atasan rutin mengecek kondisi keselamatan di lapangan.', rendah3: 'Atasan membantu menyelesaikan konflik antar shift.' },
-    'Customer Service': { karyawan: 96, responden: 83, overall: 3.42, rendah1: 'Atasan saya memberikan feedback yang membangun.', rendah2: 'Atasan saya mendukung pengembangan karir saya.', rendah3: 'Atasan saya memperhatikan kebutuhan dan masalah saya.' },
-    'Product Development': { karyawan: 80, responden: 72, overall: 3.95, rendah1: 'Atasan memberikan waktu yang cukup untuk riset produk.', rendah2: 'Dukungan penuh atas ide inovatif yang berisiko.', rendah3: 'Kejelasan requirement dari manajemen atas.' },
-    'Production': { karyawan: 400, responden: 312, overall: 2.85, rendah1: 'Atasan memperhatikan tingkat kelelahan fisik karyawan.', rendah2: 'Pembagian jadwal shift kerja dilakukan dengan adil.', rendah3: 'Feedback diberikan dengan cara yang menghargai.' },
-    'Logistics': { karyawan: 180, responden: 135, overall: 3.45, rendah1: 'Support dari atasan saat terjadi kendala pengiriman.', rendah2: 'Peralatan dan armada kerja selalu memadai.', rendah3: 'Koordinasi yang baik dengan tim gudang (warehouse).' },
-    'General Affairs': { karyawan: 70, responden: 49, overall: 4.30, rendah1: 'Pengakuan atas kontribusi pekerjaan back-office.', rendah2: 'Dukungan budget memadai dari atasan.', rendah3: 'Kejelasan instruksi kerja saat ada event dadakan.' }
+    'Human Capital': { karyawan: 5, responden: 4, overall: 4.52, rendah1: 'Frekuensi diskusi informal di luar jam kerja.', rendah2: 'Keseimbangan beban kerja tim.', rendah3: 'Fasilitas pendukung kesejahteraan.' },
+    'Finance & Accounting': { karyawan: 6, responden: 5, overall: 4.15, rendah1: 'Atasan memberikan fleksibilitas waktu saat tutup buku.', rendah2: 'Apresiasi atas pencapaian target efisiensi.', rendah3: 'Komunikasi lintas divisi untuk kelancaran dokumen.' },
+    'Information Technology': { karyawan: 12, responden: 10, overall: 2.75, rendah1: 'Atasan menghargai ide teknis yang saya berikan.', rendah2: 'Komunikasi visi proyek dari atasan jelas.', rendah3: 'Atasan melindungi tim dari tekanan departemen lain.' },
+    'Marketing & Sales': { karyawan: 15, responden: 12, overall: 3.65, rendah1: 'Atasan memberikan support nyata saat tekanan target tinggi.', rendah2: 'Atasan mendengarkan keluhan kondisi lapangan.', rendah3: 'Pengembangan karir dan sistem reward jelas.' },
+    'Operations': { karyawan: 10, responden: 8, overall: 3.25, rendah1: 'Distribusi beban kerja operasional terasa adil.', rendah2: 'Atasan rutin mengecek kondisi keselamatan di lapangan.', rendah3: 'Atasan membantu menyelesaikan konflik antar shift.' },
+    'Customer Service': { karyawan: 8, responden: 7, overall: 3.42, rendah1: 'Atasan saya memberikan feedback yang membangun.', rendah2: 'Atasan saya mendukung pengembangan karir saya.', rendah3: 'Atasan saya memperhatikan kebutuhan dan masalah saya.' },
+    'Product Development': { karyawan: 7, responden: 6, overall: 3.95, rendah1: 'Atasan memberikan waktu yang cukup untuk riset produk.', rendah2: 'Dukungan penuh atas ide inovatif yang berisiko.', rendah3: 'Kejelasan requirement dari manajemen atas.' },
+    'Production': { karyawan: 20, responden: 15, overall: 2.85, rendah1: 'Atasan memperhatikan tingkat kelelahan fisik karyawan.', rendah2: 'Pembagian jadwal shift kerja dilakukan dengan adil.', rendah3: 'Feedback diberikan dengan cara yang menghargai.' },
+    'Logistics': { karyawan: 10, responden: 8, overall: 3.45, rendah1: 'Support dari atasan saat terjadi kendala pengiriman.', rendah2: 'Peralatan dan armada kerja selalu memadai.', rendah3: 'Koordinasi yang baik dengan tim gudang (warehouse).' },
+    'General Affairs': { karyawan: 5, responden: 4, overall: 4.30, rendah1: 'Pengakuan atas kontribusi pekerjaan back-office.', rendah2: 'Dukungan budget memadai dari atasan.', rendah3: 'Kejelasan instruksi kerja saat ada event dadakan.' }
   };
 
   // Load data divisi dari Firestore sekali pas awal

@@ -5,23 +5,23 @@ import { getGlobalConfig, getDivisiData } from '../lib/firestore';
 
 export default function SummaryCards() {
   const [overallScore, setOverallScore] = useState(3.91);
-  const [responden, setResponden] = useState(1246);
+  const [responden, setResponden] = useState(79);
   const [liveDivisiData, setLiveDivisiData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  const totalKaryawan = 1452;
+  const totalKaryawan = 98;
 
   // DATA REKAPAN 10 DIVISI UNTUK EXCEL MASTER
   const baseDataDivisi = {
-    'Human Capital': { karyawan: 45, responden: 42, overall: 4.52 },
-    'Finance & Accounting': { karyawan: 55, responden: 50, overall: 4.15 },
-    'Information Technology': { karyawan: 120, responden: 105, overall: 2.75 },
-    'Marketing & Sales': { karyawan: 200, responden: 170, overall: 3.65 },
-    'Operations': { karyawan: 150, responden: 123, overall: 3.25 },
-    'Customer Service': { karyawan: 96, responden: 83, overall: 3.42 },
-    'Product Development': { karyawan: 80, responden: 72, overall: 3.95 },
-    'Production': { karyawan: 400, responden: 312, overall: 2.85 },
-    'Logistics': { karyawan: 180, responden: 135, overall: 3.45 },
-    'General Affairs': { karyawan: 70, responden: 49, overall: 4.30 }
+    'Human Capital': { karyawan: 5, responden: 4, overall: 4.52 },
+    'Finance & Accounting': { karyawan: 6, responden: 5, overall: 4.15 },
+    'Information Technology': { karyawan: 12, responden: 10, overall: 2.75 },
+    'Marketing & Sales': { karyawan: 15, responden: 12, overall: 3.65 },
+    'Operations': { karyawan: 10, responden: 8, overall: 3.25 },
+    'Customer Service': { karyawan: 8, responden: 7, overall: 3.42 },
+    'Product Development': { karyawan: 7, responden: 6, overall: 3.95 },
+    'Production': { karyawan: 20, responden: 15, overall: 2.85 },
+    'Logistics': { karyawan: 10, responden: 8, overall: 3.45 },
+    'General Affairs': { karyawan: 5, responden: 4, overall: 4.30 }
   };
 
   useEffect(() => {

@@ -95,7 +95,7 @@ export default function BottomInsights() {
           <span className="text-xl">📊</span>
           <div>
             <p className="text-xs font-bold text-gray-800">Sumber Data</p>
-            <p className="text-[10px] text-gray-500 mt-1">Data diperoleh dari survey karyawan pada bulan Mei 2024.<br/>Total responden: 1.248 dari 1.452 karyawan (86%)</p>
+            <p className="text-[10px] text-gray-500 mt-1">Data diperoleh dari survey karyawan pada bulan Mei 2024.<br/>Total responden: 79 dari 98 karyawan (80%)</p>
           </div>
         </div>
         <div className="flex gap-3 items-start">

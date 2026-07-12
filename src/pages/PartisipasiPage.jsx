@@ -4,8 +4,8 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { getGlobalConfig } from '../lib/firestore';
 
 export default function PartisipasiPage() {
-  const totalKaryawan = 1452; // Total karyawan tetap
-  const [selesai, setSelesai] = useState(1246); // Angka dasar awal
+  const totalKaryawan = 98; // Total karyawan tetap
+  const [selesai, setSelesai] = useState(79); // Angka dasar awal
 
   // Ambil data dari Firestore
   useEffect(() => {
