@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import * as XLSX from 'xlsx';
-import { getDivisiData } from '../lib/firestore';
+import { getDivisiData, getFeedbackKaryawan } from '../lib/firestore';
 
 export default function DivisiPage() {
   const daftarDivisi = [
@@ -15,6 +15,7 @@ export default function DivisiPage() {
   const [displayData, setDisplayData] = useState({});
   const [liveDivisiData, setLiveDivisiData] = useState({});
   const [showHistory, setShowHistory] = useState(false);
+  const [feedbackList, setFeedbackList] = useState([]);
 
   // 1. DATA DASAR
   const baseDataDivisi = {
@@ -36,8 +37,10 @@ export default function DivisiPage() {
       try {
         const data = await getDivisiData();
         setLiveDivisiData(data);
+        const feedback = await getFeedbackKaryawan();
+        setFeedbackList(feedback);
       } catch (err) {
-        console.error("Gagal memuat data divisi:", err);
+        console.error("Gagal memuat data divisi/feedback:", err);
       }
     }
     loadData();
@@ -365,6 +368,39 @@ export default function DivisiPage() {
             </div>
           </div>
         )}
+
+        {/* FEEDBACK KOMUNIKASI KARYAWAN (DARI MODUL LMX-C) */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mt-6">
+          <div className="flex items-center gap-3 mb-6 border-b pb-4">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 text-xl">🗣️</div>
+            <div>
+              <h3 className="text-sm font-bold text-gray-800">Feedback Komunikasi (LMX-C)</h3>
+              <p className="text-[10px] text-gray-500">Respon karyawan divisi {activeDivisi} setelah mengikuti modul edukasi komunikasi dua arah.</p>
+            </div>
+          </div>
+
+          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+            {feedbackList.filter(fb => fb.divisi === activeDivisi).length > 0 ? (
+              feedbackList.filter(fb => fb.divisi === activeDivisi).map((fb, idx) => (
+                <div key={fb.id || idx} className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-slate-700">Karyawan #{idx + 1}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${fb.skor < 3 ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>Skor: {fb.skor}</span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 space-y-2">
+                    <p><strong>1. Masalah Utama:</strong> {fb.feedback?.q1 || '-'}</p>
+                    <p><strong>2. Strategi Perbaikan:</strong> {fb.feedback?.q2 || '-'}</p>
+                    <p><strong>3. Harapan dari Atasan:</strong> {fb.feedback?.q3 || '-'}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-6 text-gray-400 text-xs italic">
+                Belum ada data feedback komunikasi untuk divisi ini.
+              </div>
+            )}
+          </div>
+        </div>
 
       </div>
 

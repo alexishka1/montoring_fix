@@ -75,6 +75,7 @@ export default function SurveyPage() {
 
   const [answersLMX7, setAnswersLMX7] = useState({});
   const [answersMDM, setAnswersMDM] = useState({}); 
+  const [answersLMXC, setAnswersLMXC] = useState({ q1: '', q2: '', q3: '' });
 
   // ==========================================
   // LOGIKA KLIK & SUBMIT
@@ -87,7 +88,7 @@ export default function SurveyPage() {
     try {
       // Simpan ke Firestore: increment counter + tambah data divisi beserta jawabannya
       await incrementSurveyCount();
-      await addSurveyResult(pilihanDivisi, skor, answersLMX7, answersMDM);
+      await addSurveyResult(pilihanDivisi, skor, answersLMX7, answersMDM, answersLMXC);
       setFase('SUCCESS'); 
     } catch (err) {
       console.error("Gagal menyimpan survei:", err);
@@ -125,8 +126,8 @@ export default function SurveyPage() {
     else kat = "At Risk";
     setKategori(kat);
 
-    // LOGIKA KLIEN TERBARU: Skor di bawah 3.00 WAJIB masuk LMX-MDM
-    if (rataRata < 3.0) {
+    // LOGIKA KLIEN TERBARU: Skor di bawah 4.00 (Kuning & Merah) WAJIB masuk LMX-MDM
+    if (rataRata < 4.0) {
       setFase('LMX-MDM'); 
       setMdmStep(0); 
     } else {
@@ -140,7 +141,7 @@ export default function SurveyPage() {
     // Kalau di kategori ini admin gak masukin pertanyaan satupun (kosong), skip aja!
     if (currentQCount === 0) {
       if (mdmStep < 3) setMdmStep(mdmStep + 1);
-      else selesaikanSurvey(skorAkhir);
+      else setFase('MODUL-EDUKASI');
       return;
     }
 
@@ -153,10 +154,18 @@ export default function SurveyPage() {
     if (mdmStep < 3) {
       setMdmStep(mdmStep + 1); 
     } else {
-      selesaikanSurvey(skorAkhir); 
+      setFase('MODUL-EDUKASI');
     }
   };
   const handlePrevMDM = () => { if (mdmStep > 0) setMdmStep(mdmStep - 1); };
+
+  const handleSubmitLMXC = () => {
+    if (!answersLMXC.q1 || !answersLMXC.q2 || !answersLMXC.q3) {
+      alert("Tolong jawab semua pertanyaan pada modul ini.");
+      return;
+    }
+    selesaikanSurvey(skorAkhir);
+  };
 
   const RatingScale = ({ currentAnswer, onSelect }) => {
     return (
@@ -365,7 +374,91 @@ export default function SurveyPage() {
   }
 
   // ==========================================
-  // TAMPILAN 3: SUCCESS (SELESAI)
+  // TAMPILAN 3: MODUL EDUKASI (LMX-C)
+  // ==========================================
+  if (fase === 'MODUL-EDUKASI') {
+    return (
+      <div className="min-h-screen bg-indigo-50/30 py-8 px-4 font-sans text-gray-800 transition-colors duration-500">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-gradient-to-r from-indigo-600 to-blue-700 p-8 rounded-3xl shadow-lg text-white mb-6 relative overflow-hidden">
+             <div className="relative z-10">
+               <span className="bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full inline-block mb-4 backdrop-blur-sm border border-white/30">
+                 Langkah Terakhir | Modul Pengembangan LMX-C
+               </span>
+               <h1 className="text-2xl font-bold mb-2">Strategi Komunikasi Interpersonal</h1>
+               <p className="text-white/90 text-sm max-w-xl">
+                 Silakan tonton video singkat berikut mengenai strategi komunikasi asertif dan kepemimpinan, kemudian jawab 3 pertanyaan reflektif di bawah ini.
+               </p>
+             </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+            <h2 className="text-lg font-bold text-gray-800 mb-4">Video Pembelajaran</h2>
+            <div className="relative w-full overflow-hidden rounded-xl bg-gray-100" style={{ paddingTop: '56.25%' }}>
+              <iframe 
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/lkGZ_D9sQzw" 
+                title="LMX Communication Video" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 space-y-6">
+            <h2 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Feedback Komunikasi Dua Arah</h2>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">1. Apa masalah komunikasi utama yang saat ini sering terjadi antara Anda dan atasan?</label>
+              <textarea 
+                rows={3}
+                value={answersLMXC.q1}
+                onChange={(e) => setAnswersLMXC({...answersLMXC, q1: e.target.value})}
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-50 hover:bg-white transition-colors"
+                placeholder="Tuliskan jawaban Anda di sini..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">2. Berdasarkan video, strategi apa yang akan Anda coba terapkan untuk memperbaiki masalah tersebut?</label>
+              <textarea 
+                rows={3}
+                value={answersLMXC.q2}
+                onChange={(e) => setAnswersLMXC({...answersLMXC, q2: e.target.value})}
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-50 hover:bg-white transition-colors"
+                placeholder="Tuliskan jawaban Anda di sini..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">3. Apa harapan atau dukungan spesifik yang Anda butuhkan dari atasan ke depannya?</label>
+              <textarea 
+                rows={3}
+                value={answersLMXC.q3}
+                onChange={(e) => setAnswersLMXC({...answersLMXC, q3: e.target.value})}
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-50 hover:bg-white transition-colors"
+                placeholder="Tuliskan jawaban Anda di sini..."
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end items-center mb-10">
+            <button 
+              onClick={handleSubmitLMXC} 
+              disabled={isSubmitting}
+              className="px-8 py-3 rounded-xl font-bold text-sm text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Mengirim...' : 'Kirim Feedback & Selesai'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // TAMPILAN 4: SUCCESS (SELESAI)
   // ==========================================
   return (
     <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center font-sans px-4">

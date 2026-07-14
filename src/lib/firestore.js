@@ -97,14 +97,17 @@ export async function updateLmxScore(score) {
 // ================================================
 
 // Simpan hasil survei baru (per karyawan)
-export async function addSurveyResult(divisi, skor, answersLMX7 = {}, answersMDM = {}) {
-  await addDoc(collection(db, 'survey_results'), {
+export async function addSurveyResult(divisi, skor, answersLMX7 = {}, answersMDM = {}, feedbackLMXC = null) {
+  const payload = {
     divisi,
     skor: parseFloat(skor),
     answersLMX7,
     answersMDM,
     timestamp: serverTimestamp()
-  });
+  };
+  if (feedbackLMXC) payload.feedbackLMXC = feedbackLMXC;
+  
+  await addDoc(collection(db, 'survey_results'), payload);
 }
 
 // Ambil semua data survei, dikelompokkan per divisi
@@ -118,6 +121,28 @@ export async function getDivisiData() {
     divisiData[data.divisi].push(data.skor);
   });
   return divisiData;
+}
+
+export async function getFeedbackKaryawan() {
+  const querySnapshot = await getDocs(collection(db, 'survey_results'));
+  const feedbackList = [];
+  querySnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    if (data.feedbackLMXC) {
+      feedbackList.push({
+        id: docSnap.id,
+        divisi: data.divisi,
+        skor: data.skor,
+        feedback: data.feedbackLMXC,
+        timestamp: data.timestamp
+      });
+    }
+  });
+  return feedbackList.sort((a, b) => {
+    const tA = a.timestamp?.seconds || 0;
+    const tB = b.timestamp?.seconds || 0;
+    return tB - tA;
+  });
 }
 
 // ================================================

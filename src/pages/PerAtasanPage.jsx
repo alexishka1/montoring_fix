@@ -1,6 +1,7 @@
 // src/pages/PerAtasanPage.jsx
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { getFeedbackKaryawan } from '../lib/firestore';
 
 export default function PerAtasanPage() {
   // 10 Divisi lengkap sesuai request lu
@@ -56,6 +57,19 @@ export default function PerAtasanPage() {
 
   const [daftarLeader, setDaftarLeader] = useState(databaseAtasan['Human Capital']);
   const [activeLeader, setActiveLeader] = useState(daftarLeader[0]);
+  const [feedbackList, setFeedbackList] = useState([]);
+
+  useEffect(() => {
+    async function loadFeedback() {
+      try {
+        const feedback = await getFeedbackKaryawan();
+        setFeedbackList(feedback);
+      } catch (err) {
+        console.error("Gagal memuat feedback:", err);
+      }
+    }
+    loadFeedback();
+  }, []);
 
   // Efek ganti data pas dropdown divisi diganti
   useEffect(() => {
@@ -253,6 +267,39 @@ export default function PerAtasanPage() {
               </div>
             </div>
           )}
+
+          {/* FEEDBACK KOMUNIKASI KARYAWAN (DARI MODUL LMX-C) */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-6">
+            <div className="flex items-center gap-3 mb-6 border-b pb-4">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 text-xl">🗣️</div>
+              <div>
+                <h3 className="font-bold text-gray-800">Feedback Komunikasi (LMX-C)</h3>
+                <p className="text-xs text-gray-500">Respon karyawan divisi {activeDivisi} terkait atasan mereka.</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+              {feedbackList.filter(fb => fb.divisi === activeDivisi).length > 0 ? (
+                feedbackList.filter(fb => fb.divisi === activeDivisi).map((fb, idx) => (
+                  <div key={fb.id || idx} className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-bold text-slate-700">Karyawan #{idx + 1}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${fb.skor < 3 ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>Skor: {fb.skor}</span>
+                    </div>
+                    <div className="text-xs text-slate-600 space-y-2">
+                      <p><strong>1. Masalah Utama:</strong> {fb.feedback?.q1 || '-'}</p>
+                      <p><strong>2. Strategi Perbaikan:</strong> {fb.feedback?.q2 || '-'}</p>
+                      <p><strong>3. Harapan dari Atasan:</strong> {fb.feedback?.q3 || '-'}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-6 text-gray-400 text-xs italic">
+                  Belum ada data feedback komunikasi untuk divisi ini.
+                </div>
+              )}
+            </div>
+          </div>
 
         </div>
       </div>
