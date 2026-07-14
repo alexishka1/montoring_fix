@@ -30,7 +30,7 @@ export default function DivisiPage() {
     'General Affairs': { karyawan: 5, responden: 4, overall: 4.30, rendah1: 'Pengakuan atas kontribusi pekerjaan back-office.', rendah2: 'Dukungan budget memadai dari atasan.', rendah3: 'Kejelasan instruksi kerja saat ada event dadakan.' }
   };
 
-  // Load data divisi dari Firestore sekali pas awal
+  // Load data divisi dari Firestore
   useEffect(() => {
     async function loadData() {
       try {
@@ -43,7 +43,7 @@ export default function DivisiPage() {
     loadData();
   }, []);
 
-  // 2. LOGIKA BACA DATA ASLI (dari Firestore)
+  // 2. LOGIKA BACA DATA
   useEffect(() => {
     let currentBase = baseDataDivisi[activeDivisi] || baseDataDivisi['Customer Service'];
     let finalData = { ...currentBase };
@@ -52,9 +52,8 @@ export default function DivisiPage() {
       const scoresArray = liveDivisiData[activeDivisi];
       const totalSkorAsli = scoresArray.reduce((a, b) => a + b, 0);
       const realAvg = totalSkorAsli / scoresArray.length;
-      
       finalData.overall = parseFloat(realAvg.toFixed(2));
-      finalData.responden = currentBase.responden + scoresArray.length; 
+      finalData.responden = currentBase.responden + scoresArray.length;
     }
 
     const avg = finalData.overall;
@@ -70,7 +69,6 @@ export default function DivisiPage() {
     finalData.loyalty = Math.max(1, (avg - 0.15));
     finalData.contribution = Math.min(5, (avg + 0.05));
     finalData.respect = Math.max(1, (avg - 0.08));
-
     finalData.skor1 = Math.max(1, (avg - 0.45));
     finalData.skor2 = Math.max(1, (avg - 0.35));
     finalData.skor3 = Math.max(1, (avg - 0.25));
@@ -79,7 +77,7 @@ export default function DivisiPage() {
     setDisplayData(finalData);
   }, [activeDivisi, liveDivisiData]);
 
-  // 3. FUNGSI UNDUH EXCEL (.xlsx)
+  // 3. FUNGSI UNDUH EXCEL
   const unduhExcelAsli = () => {
     const dataRow = [{
       "Nama Divisi": activeDivisi,
@@ -93,16 +91,12 @@ export default function DivisiPage() {
       "Skor Contribution": displayData.contribution.toFixed(2),
       "Skor Prof. Respect": displayData.respect.toFixed(2)
     }];
-
     const worksheet = XLSX.utils.json_to_sheet(dataRow);
-    
-    // Bikin lebar kolomnya rapi otomatis di Excel
     const wscols = [
-      {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}, 
+      {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15},
       {wch: 20}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 18}
     ];
     worksheet['!cols'] = wscols;
-
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan LMX");
     XLSX.writeFile(workbook, `Data_LMX_${activeDivisi.replace(/\s+/g, '_')}.xlsx`);
@@ -119,26 +113,69 @@ export default function DivisiPage() {
 
   const baseSkor = displayData.overall;
   const lineData = [
-    { bulan: 'Jan 26', skor: (baseSkor - 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 3) }, 
+    { bulan: 'Jan 26', skor: (baseSkor - 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 3) },
     { bulan: 'Feb 26', skor: (baseSkor + 0.1).toFixed(2), responden: Math.max(2, displayData.responden + 2) },
-    { bulan: 'Mar 26', skor: (baseSkor - 0.1).toFixed(2), responden: Math.max(2, displayData.responden - 1) }, 
+    { bulan: 'Mar 26', skor: (baseSkor - 0.1).toFixed(2), responden: Math.max(2, displayData.responden - 1) },
     { bulan: 'Apr 26', skor: (baseSkor - 0.3).toFixed(2), responden: Math.max(2, displayData.responden + 3) },
-    { bulan: 'Mei 26', skor: (baseSkor + 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 2) }, 
+    { bulan: 'Mei 26', skor: (baseSkor + 0.2).toFixed(2), responden: Math.max(2, displayData.responden - 2) },
     { bulan: 'Jun 26', skor: baseSkor, responden: displayData.responden },
+  ];
+
+  // ─── Fungsi warna badge ───
+  const getSkorColor = (s) => s >= 4 ? 'text-green-700 bg-green-50' : s >= 3 ? 'text-orange-700 bg-orange-50' : 'text-red-700 bg-red-50';
+
+  // ─── Data historis untuk modal ───
+  const base = displayData.overall || 3.5;
+  const historyData = [
+    { tahun: '2026', data: [
+      { bulan: 'Januari', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
+      { bulan: 'Februari', skor: parseFloat((base + 0.10).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
+      { bulan: 'Maret', skor: parseFloat((base - 0.10).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+      { bulan: 'April', skor: parseFloat((base - 0.30).toFixed(2)), responden: Math.max(2, displayData.responden + 3) },
+      { bulan: 'Mei', skor: parseFloat((base + 0.20).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+      { bulan: 'Juni', skor: base, responden: displayData.responden },
+    ]},
+    { tahun: '2025', data: [
+      { bulan: 'Januari', skor: parseFloat((base - 0.55).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+      { bulan: 'Februari', skor: parseFloat((base - 0.50).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+      { bulan: 'Maret', skor: parseFloat((base - 0.42).toFixed(2)), responden: Math.max(2, displayData.responden) },
+      { bulan: 'April', skor: parseFloat((base - 0.48).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+      { bulan: 'Mei', skor: parseFloat((base - 0.35).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
+      { bulan: 'Juni', skor: parseFloat((base - 0.38).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
+      { bulan: 'Juli', skor: parseFloat((base - 0.32).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+      { bulan: 'Agustus', skor: parseFloat((base - 0.28).toFixed(2)), responden: Math.max(2, displayData.responden) },
+      { bulan: 'September', skor: parseFloat((base - 0.30).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+      { bulan: 'Oktober', skor: parseFloat((base - 0.25).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+      { bulan: 'November', skor: parseFloat((base - 0.22).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+      { bulan: 'Desember', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden) },
+    ]},
+    { tahun: '2024', data: [
+      { bulan: 'Januari', skor: parseFloat((base - 0.80).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
+      { bulan: 'Februari', skor: parseFloat((base - 0.75).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+      { bulan: 'Maret', skor: parseFloat((base - 0.70).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+      { bulan: 'April', skor: parseFloat((base - 0.72).toFixed(2)), responden: Math.max(2, displayData.responden) },
+      { bulan: 'Mei', skor: parseFloat((base - 0.68).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+      { bulan: 'Juni', skor: parseFloat((base - 0.65).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+      { bulan: 'Juli', skor: parseFloat((base - 0.62).toFixed(2)), responden: Math.max(2, displayData.responden) },
+      { bulan: 'Agustus', skor: parseFloat((base - 0.60).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
+      { bulan: 'September', skor: parseFloat((base - 0.58).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
+      { bulan: 'Oktober', skor: parseFloat((base - 0.62).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
+      { bulan: 'November', skor: parseFloat((base - 0.57).toFixed(2)), responden: Math.max(2, displayData.responden) },
+      { bulan: 'Desember', skor: parseFloat((base - 0.55).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
+    ]},
   ];
 
   return (
     <div className="text-sm font-sans">
-      
+
       {/* HEADER & TOMBOL EXCEL */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Per Divisi</h1>
           <p className="text-sm text-gray-500 mt-1">Lihat detail penilaian LMX untuk setiap divisi dalam organisasi.</p>
         </div>
-        
         <div className="flex shrink-0">
-          <button 
+          <button
             onClick={unduhExcelAsli}
             className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg text-xs font-bold hover:from-emerald-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg cursor-pointer"
           >
@@ -157,8 +194,8 @@ export default function DivisiPage() {
             key={divisi}
             onClick={() => setActiveDivisi(divisi)}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeDivisi === divisi 
-                ? 'bg-slate-800 text-white shadow-md scale-105' 
+              activeDivisi === divisi
+                ? 'bg-slate-800 text-white shadow-md scale-105'
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
             }`}
           >
@@ -169,37 +206,38 @@ export default function DivisiPage() {
 
       {/* KONTEN UTAMA */}
       <div className="space-y-6">
+
         {/* SUMMARY CARDS */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">{activeDivisi}</h2>
-                <p className={`text-sm font-bold ${displayData.color}`}>{displayData.kategori}</p>
-              </div>
-              <div className="flex items-center gap-6 text-center">
-                <div><p className="text-[10px] font-bold text-gray-400 uppercase">Karyawan</p><p className="text-xl font-bold text-gray-800">{displayData.karyawan}</p></div>
-                <div className="w-px h-10 bg-gray-100"></div>
-                <div><p className="text-[10px] font-bold text-gray-400 uppercase">Responden</p><p className="text-xl font-bold text-gray-800">{displayData.responden}</p></div>
-                <div className="w-px h-10 bg-gray-100"></div>
-                <div><p className="text-[10px] font-bold text-gray-400 uppercase">Rate</p><p className="text-xl font-bold text-blue-600">{displayData.rate}</p></div>
-              </div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">{activeDivisi}</h2>
+              <p className={`text-sm font-bold ${displayData.color}`}>{displayData.kategori}</p>
             </div>
-            
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-gray-900">{displayData.overall?.toFixed(2)}</span>
-                <span className="text-sm font-medium text-gray-500">/ 5.00</span>
-              </div>
-              <div className="flex items-center gap-6">
-                <div><p className="text-[11px] font-bold text-gray-800 mb-2">Affect</p><span className="text-2xl font-bold text-gray-900">{displayData.affect.toFixed(2)}</span></div>
-                <div className="hidden md:block w-px h-12 bg-gray-100"></div>
-                <div><p className="text-[11px] font-bold text-gray-800 mb-2">Loyalty</p><span className="text-2xl font-bold text-gray-900">{displayData.loyalty.toFixed(2)}</span></div>
-                <div className="hidden md:block w-px h-12 bg-gray-100"></div>
-                <div><p className="text-[11px] font-bold text-gray-800 mb-2">Contribution</p><span className="text-2xl font-bold text-gray-900">{displayData.contribution.toFixed(2)}</span></div>
-                <div className="hidden md:block w-px h-12 bg-gray-100"></div>
-                <div><p className="text-[11px] font-bold text-gray-800 mb-2">Prof. Respect</p><span className="text-2xl font-bold text-gray-900">{displayData.respect.toFixed(2)}</span></div>
-              </div>
+            <div className="flex items-center gap-6 text-center">
+              <div><p className="text-[10px] font-bold text-gray-400 uppercase">Karyawan</p><p className="text-xl font-bold text-gray-800">{displayData.karyawan}</p></div>
+              <div className="w-px h-10 bg-gray-100"></div>
+              <div><p className="text-[10px] font-bold text-gray-400 uppercase">Responden</p><p className="text-xl font-bold text-gray-800">{displayData.responden}</p></div>
+              <div className="w-px h-10 bg-gray-100"></div>
+              <div><p className="text-[10px] font-bold text-gray-400 uppercase">Rate</p><p className="text-xl font-bold text-blue-600">{displayData.rate}</p></div>
             </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100">
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-gray-900">{displayData.overall?.toFixed(2)}</span>
+              <span className="text-sm font-medium text-gray-500">/ 5.00</span>
+            </div>
+            <div className="flex items-center gap-6">
+              <div><p className="text-[11px] font-bold text-gray-800 mb-2">Affect</p><span className="text-2xl font-bold text-gray-900">{displayData.affect.toFixed(2)}</span></div>
+              <div className="hidden md:block w-px h-12 bg-gray-100"></div>
+              <div><p className="text-[11px] font-bold text-gray-800 mb-2">Loyalty</p><span className="text-2xl font-bold text-gray-900">{displayData.loyalty.toFixed(2)}</span></div>
+              <div className="hidden md:block w-px h-12 bg-gray-100"></div>
+              <div><p className="text-[11px] font-bold text-gray-800 mb-2">Contribution</p><span className="text-2xl font-bold text-gray-900">{displayData.contribution.toFixed(2)}</span></div>
+              <div className="hidden md:block w-px h-12 bg-gray-100"></div>
+              <div><p className="text-[11px] font-bold text-gray-800 mb-2">Prof. Respect</p><span className="text-2xl font-bold text-gray-900">{displayData.respect.toFixed(2)}</span></div>
+            </div>
+          </div>
         </div>
 
         {/* GRAFIK: TREN + RADAR */}
@@ -207,7 +245,7 @@ export default function DivisiPage() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-bold text-gray-800">Tren Skor LMX</h3>
-              <button 
+              <button
                 onClick={() => setShowHistory(true)}
                 className="flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold hover:bg-blue-100 transition-colors cursor-pointer"
               >
@@ -279,7 +317,7 @@ export default function DivisiPage() {
 
         {/* LMX Communication Strategy Module */}
         {displayData.overall < 4.0 && (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mt-6">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl">💬</div>
               <div>
@@ -287,7 +325,7 @@ export default function DivisiPage() {
                 <p className="text-[10px] text-gray-500">Rekomendasi intervensi komunikasi spesifik untuk divisi {activeDivisi}.</p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
                 <h4 className="text-xs font-bold text-slate-800 mb-3 flex items-center gap-2">👨‍💼 Untuk Jajaran Atasan Divisi</h4>
@@ -296,7 +334,7 @@ export default function DivisiPage() {
                     <>
                       <li className="flex gap-2"><span>•</span><span><b>Tingkatkan Frekuensi (Frequency):</b> Atasan perlu memperbanyak sesi <i>check-in</i> informal, tidak hanya saat menagih laporan.</span></li>
                       <li className="flex gap-2"><span>•</span><span><b>Keterbukaan (Openness):</b> Ciptakan ruang aman psikologis (<i>psychological safety</i>) agar tim berani menyuarakan masalah tanpa takut dihakimi.</span></li>
-                      <li className="flex gap-2"><span>•</span><span><b>Akurasi Arahan (Accuracy):</b> Hindari instruksi yang ambigu. Berikan konteks 'mengapa' sebuah tugas harus dikerjakan.</span></li>
+                      <li className="flex gap-2"><span>•</span><span><b>Akurasi Arahan (Accuracy):</b> Hindari instruksi yang ambigu. Berikan konteks mengapa sebuah tugas harus dikerjakan.</span></li>
                     </>
                   ) : (
                     <>
@@ -328,50 +366,10 @@ export default function DivisiPage() {
           </div>
         )}
 
+      </div>
 
       {/* MODAL RIWAYAT TREN SKOR HISTORIS */}
-      {showHistory && (() => {
-        const base = displayData.overall || 3.5;
-        const historyData = [
-          { tahun: '2026', data: [
-            { bulan: 'Januari', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
-            { bulan: 'Februari', skor: parseFloat((base + 0.10).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
-            { bulan: 'Maret', skor: parseFloat((base - 0.10).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
-            { bulan: 'April', skor: parseFloat((base - 0.30).toFixed(2)), responden: Math.max(2, displayData.responden + 3) },
-            { bulan: 'Mei', skor: parseFloat((base + 0.20).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
-            { bulan: 'Juni', skor: base, responden: displayData.responden },
-          ]},
-          { tahun: '2025', data: [
-            { bulan: 'Januari', skor: parseFloat((base - 0.55).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
-            { bulan: 'Februari', skor: parseFloat((base - 0.50).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
-            { bulan: 'Maret', skor: parseFloat((base - 0.42).toFixed(2)), responden: Math.max(2, displayData.responden) },
-            { bulan: 'April', skor: parseFloat((base - 0.48).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
-            { bulan: 'Mei', skor: parseFloat((base - 0.35).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
-            { bulan: 'Juni', skor: parseFloat((base - 0.38).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
-            { bulan: 'Juli', skor: parseFloat((base - 0.32).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
-            { bulan: 'Agustus', skor: parseFloat((base - 0.28).toFixed(2)), responden: Math.max(2, displayData.responden) },
-            { bulan: 'September', skor: parseFloat((base - 0.30).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
-            { bulan: 'Oktober', skor: parseFloat((base - 0.25).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
-            { bulan: 'November', skor: parseFloat((base - 0.22).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
-            { bulan: 'Desember', skor: parseFloat((base - 0.20).toFixed(2)), responden: Math.max(2, displayData.responden) },
-          ]},
-          { tahun: '2024', data: [
-            { bulan: 'Januari', skor: parseFloat((base - 0.80).toFixed(2)), responden: Math.max(2, displayData.responden - 3) },
-            { bulan: 'Februari', skor: parseFloat((base - 0.75).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
-            { bulan: 'Maret', skor: parseFloat((base - 0.70).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
-            { bulan: 'April', skor: parseFloat((base - 0.72).toFixed(2)), responden: Math.max(2, displayData.responden) },
-            { bulan: 'Mei', skor: parseFloat((base - 0.68).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
-            { bulan: 'Juni', skor: parseFloat((base - 0.65).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
-            { bulan: 'Juli', skor: parseFloat((base - 0.62).toFixed(2)), responden: Math.max(2, displayData.responden) },
-            { bulan: 'Agustus', skor: parseFloat((base - 0.60).toFixed(2)), responden: Math.max(2, displayData.responden + 2) },
-            { bulan: 'September', skor: parseFloat((base - 0.58).toFixed(2)), responden: Math.max(2, displayData.responden - 1) },
-            { bulan: 'Oktober', skor: parseFloat((base - 0.62).toFixed(2)), responden: Math.max(2, displayData.responden + 1) },
-            { bulan: 'November', skor: parseFloat((base - 0.57).toFixed(2)), responden: Math.max(2, displayData.responden) },
-            { bulan: 'Desember', skor: parseFloat((base - 0.55).toFixed(2)), responden: Math.max(2, displayData.responden - 2) },
-          ]},
-        ];
-        const getSkorColor = (s) => s >= 4 ? 'text-green-700 bg-green-50' : s >= 3 ? 'text-orange-700 bg-orange-50' : 'text-red-700 bg-red-50';
-        return (
+      {showHistory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col relative border border-gray-100">
             <div className="p-6 pb-4 border-b border-gray-100 shrink-0">
@@ -404,7 +402,14 @@ export default function DivisiPage() {
                         </div>
                       </div>
                       <table className="w-full text-xs">
-                        <thead><tr className="border-b border-gray-100 text-gray-500"><th className="text-left py-2 px-4 font-medium">Bulan</th><th className="text-center py-2 px-4 font-medium">Skor LMX</th><th className="text-center py-2 px-4 font-medium">Responden</th><th className="text-right py-2 px-4 font-medium">Kategori</th></tr></thead>
+                        <thead>
+                          <tr className="border-b border-gray-100 text-gray-500">
+                            <th className="text-left py-2 px-4 font-medium">Bulan</th>
+                            <th className="text-center py-2 px-4 font-medium">Skor LMX</th>
+                            <th className="text-center py-2 px-4 font-medium">Responden</th>
+                            <th className="text-right py-2 px-4 font-medium">Kategori</th>
+                          </tr>
+                        </thead>
                         <tbody className="divide-y divide-gray-50">
                           {year.data.map((row, i) => (
                             <tr key={i} className="hover:bg-slate-50/50 transition-colors">
@@ -426,8 +431,8 @@ export default function DivisiPage() {
             </div>
           </div>
         </div>
-        );
-      })()}
+      )}
+
     </div>
   );
 }
