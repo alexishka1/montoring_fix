@@ -76,6 +76,7 @@ export default function SurveyPage() {
   const [answersLMX7, setAnswersLMX7] = useState({});
   const [answersMDM, setAnswersMDM] = useState({}); 
   const [answersLMXC, setAnswersLMXC] = useState({ q1: '', q2: '', q3: '' });
+  const [isAgreed, setIsAgreed] = useState(false);
 
   // ==========================================
   // LOGIKA KLIK & SUBMIT
@@ -164,7 +165,7 @@ export default function SurveyPage() {
       alert("Tolong jawab semua pertanyaan pada modul ini.");
       return;
     }
-    selesaikanSurvey(skorAkhir);
+    setFase('MODUL-BACAAN');
   };
 
   const RatingScale = ({ currentAnswer, onSelect }) => {
@@ -446,10 +447,9 @@ export default function SurveyPage() {
           <div className="flex justify-end items-center mb-10">
             <button 
               onClick={handleSubmitLMXC} 
-              disabled={isSubmitting}
-              className="px-8 py-3 rounded-xl font-bold text-sm text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+              className="px-8 py-3 rounded-xl font-bold text-sm text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all bg-indigo-600 hover:bg-indigo-700"
             >
-              {isSubmitting ? 'Mengirim...' : 'Kirim Feedback & Selesai'}
+              Lanjutkan ke Modul
             </button>
           </div>
         </div>
@@ -458,7 +458,79 @@ export default function SurveyPage() {
   }
 
   // ==========================================
-  // TAMPILAN 4: SUCCESS (SELESAI)
+  // TAMPILAN 4: MODUL BACAAN (LMX-C)
+  // ==========================================
+  if (fase === 'MODUL-BACAAN') {
+    return (
+      <div className="min-h-screen bg-slate-50 py-8 px-4 font-sans text-gray-800 transition-colors duration-500">
+        <div className="max-w-3xl mx-auto">
+          
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 mb-6 relative overflow-hidden">
+             <div className="flex items-center gap-4 border-b border-gray-100 pb-4 mb-6">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-2xl shrink-0">📖</div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-800">Modul Leader Member Exchange Communication</h1>
+                  <p className="text-xs text-gray-500">Mohon baca panduan singkat di bawah ini sebelum menyelesaikan survei.</p>
+                </div>
+             </div>
+             
+             {/* KOTAK SCROLLABLE T&C STYLE */}
+             <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 h-80 overflow-y-auto text-sm text-gray-600 leading-relaxed space-y-4 shadow-inner">
+               <h3 className="font-bold text-gray-800">1. Pendahuluan</h3>
+               <p>Komunikasi yang efektif antara atasan dan bawahan merupakan pilar utama dalam menciptakan lingkungan kerja yang produktif, inovatif, dan minim stres. Modul ini berfokus pada <strong>Leader Member Exchange Communication (LMX-C)</strong>, sebuah pendekatan yang menekankan kualitas hubungan dan interaksi dua arah.</p>
+
+               <h3 className="font-bold text-gray-800">2. Prinsip Utama Komunikasi LMX</h3>
+               <ul className="list-disc pl-5 space-y-2">
+                 <li><strong>Membangun Trust (Kepercayaan):</strong> Kepercayaan tidak dibangun dalam semalam, melainkan melalui konsistensi. Atasan perlu mendengarkan tanpa menghakimi, dan bawahan perlu berani menyampaikan kendala secara transparan.</li>
+                 <li><strong>Menghargai (Respect):</strong> Hargai kontribusi sekecil apapun. Hindari instruksi yang bersifat menyalahkan (<i>blaming</i>) di depan umum.</li>
+                 <li><strong>Komunikasi Asertif:</strong> Sampaikan kebutuhan, harapan, maupun penolakan dengan cara yang objektif, jelas, dan profesional tanpa unsur emosi negatif.</li>
+               </ul>
+
+               <h3 className="font-bold text-gray-800">3. Tanggung Jawab Dua Arah</h3>
+               <p><strong>Sebagai Atasan:</strong> Anda bertanggung jawab untuk tidak hanya memberikan instruksi (<i>one-way directive</i>), tetapi juga membuka ruang diskusi. Berikan alasan dan konteks (<i>the "why"</i>) dari setiap tugas yang diberikan.</p>
+               <p><strong>Sebagai Bawahan:</strong> Anda diharapkan untuk proaktif. Jangan menunggu ditanya jika ada masalah. Berikan laporan kemajuan secara berkala dan mintalah <i>feedback</i> (umpan balik) untuk perbaikan diri.</p>
+
+               <h3 className="font-bold text-gray-800">4. Penutup</h3>
+               <p>Hubungan kerja yang sehat berbanding lurus dengan kepuasan kerja. Dengan mengimplementasikan LMX-C, kita menciptakan kolaborasi tim yang tahan banting menghadapi dinamika perusahaan.</p>
+             </div>
+             
+             {/* CHECKBOX PERSETUJUAN */}
+             <div className="mt-6 flex items-start gap-3 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+               <input 
+                 type="checkbox" 
+                 id="agreeLMX"
+                 checked={isAgreed}
+                 onChange={(e) => setIsAgreed(e.target.checked)}
+                 className="mt-1 w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+               />
+               <label htmlFor="agreeLMX" className="text-sm text-gray-700 cursor-pointer select-none">
+                 Saya telah membaca dan memahami panduan <strong>Leader Member Exchange Communication</strong> di atas, dan akan berusaha menerapkannya di lingkungan kerja.
+               </label>
+             </div>
+          </div>
+
+          <div className="flex justify-between items-center mb-10">
+            <button 
+              onClick={() => setFase('MODUL-EDUKASI')} 
+              className="px-6 py-3 rounded-xl font-bold text-sm text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 shadow-sm transition-all"
+            >
+              Kembali
+            </button>
+            <button 
+              onClick={() => selesaikanSurvey(skorAkhir)} 
+              disabled={!isAgreed || isSubmitting}
+              className={`px-8 py-3 rounded-xl font-bold text-sm text-white shadow-md transition-all ${!isAgreed || isSubmitting ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5'}`}
+            >
+              {isSubmitting ? 'Menyimpan...' : 'Selesaikan Survei'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // TAMPILAN 5: SUCCESS (SELESAI)
   // ==========================================
   return (
     <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center font-sans px-4">
