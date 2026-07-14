@@ -275,7 +275,6 @@ export default function DivisiPage() {
               </ul>
             </div>
           </div>
-          </div>
         </div>
 
         {/* LMX Communication Strategy Module */}
@@ -329,7 +328,6 @@ export default function DivisiPage() {
           </div>
         )}
 
-      </div>
 
       {/* MODAL RIWAYAT TREN SKOR HISTORIS */}
       {showHistory && (() => {
