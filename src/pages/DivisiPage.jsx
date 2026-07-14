@@ -275,7 +275,60 @@ export default function DivisiPage() {
               </ul>
             </div>
           </div>
+          </div>
         </div>
+
+        {/* LMX Communication Strategy Module */}
+        {displayData.overall < 4.0 && (
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mt-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl">💬</div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-800">Strategi Komunikasi (Modul LMX-C)</h3>
+                <p className="text-[10px] text-gray-500">Rekomendasi intervensi komunikasi spesifik untuk divisi {activeDivisi}.</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+                <h4 className="text-xs font-bold text-slate-800 mb-3 flex items-center gap-2">👨‍💼 Untuk Jajaran Atasan Divisi</h4>
+                <ul className="text-[11px] text-slate-600 space-y-3 leading-relaxed">
+                  {displayData.overall < 3.0 ? (
+                    <>
+                      <li className="flex gap-2"><span>•</span><span><b>Tingkatkan Frekuensi (Frequency):</b> Atasan perlu memperbanyak sesi <i>check-in</i> informal, tidak hanya saat menagih laporan.</span></li>
+                      <li className="flex gap-2"><span>•</span><span><b>Keterbukaan (Openness):</b> Ciptakan ruang aman psikologis (<i>psychological safety</i>) agar tim berani menyuarakan masalah tanpa takut dihakimi.</span></li>
+                      <li className="flex gap-2"><span>•</span><span><b>Akurasi Arahan (Accuracy):</b> Hindari instruksi yang ambigu. Berikan konteks 'mengapa' sebuah tugas harus dikerjakan.</span></li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="flex gap-2"><span>•</span><span><b>Feedback Dua Arah:</b> Rutinkan sesi <i>1-on-1</i> untuk membahas pengembangan karir tim, bukan hanya evaluasi tugas.</span></li>
+                      <li className="flex gap-2"><span>•</span><span><b>Transparansi:</b> Libatkan perwakilan tim dalam pengambilan keputusan yang berdampak pada cara kerja divisi.</span></li>
+                    </>
+                  )}
+                </ul>
+              </div>
+
+              <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+                <h4 className="text-xs font-bold text-slate-800 mb-3 flex items-center gap-2">👥 Untuk Karyawan Divisi</h4>
+                <ul className="text-[11px] text-slate-600 space-y-3 leading-relaxed">
+                  {displayData.overall < 3.0 ? (
+                    <>
+                      <li className="flex gap-2"><span>•</span><span><b>Komunikasi Asertif:</b> Belajar menyampaikan kendala atau ketidaksetujuan secara profesional, berbasis data/fakta kerja.</span></li>
+                      <li className="flex gap-2"><span>•</span><span><b>Klarifikasi (Accuracy):</b> Proaktif bertanya jika instruksi atasan dirasa kurang jelas. Jangan membuat asumsi sendiri.</span></li>
+                      <li className="flex gap-2"><span>•</span><span><b>Saluran Keluhan:</b> Gunakan prosedur yang tepat (misal lewat HR) jika kebuntuan komunikasi dengan atasan sudah sangat parah.</span></li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="flex gap-2"><span>•</span><span><b>Inisiatif Komunikasi:</b> Jangan ragu memberikan ide atau <i>feedback</i> konstruktif (<i>upward feedback</i>) kepada atasan.</span></li>
+                      <li className="flex gap-2"><span>•</span><span>Proaktif meminta evaluasi performa mandiri agar atasan tahu Anda peduli pada perkembangan diri.</span></li>
+                    </>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* MODAL RIWAYAT TREN SKOR HISTORIS */}

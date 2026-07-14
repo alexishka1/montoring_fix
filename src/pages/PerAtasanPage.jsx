@@ -203,6 +203,57 @@ export default function PerAtasanPage() {
 
           </div>
 
+          {/* LMX Communication Strategy Module */}
+          {activeLeader.overall < 4.0 && (
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl">💬</div>
+                <div>
+                  <h3 className="font-bold text-gray-800">Strategi Komunikasi (Modul LMX-C)</h3>
+                  <p className="text-xs text-gray-500">Rekomendasi intervensi komunikasi berdasarkan skor saat ini.</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+                  <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">👨‍💼 Untuk Atasan ({activeLeader.name})</h4>
+                  <ul className="text-xs text-slate-600 space-y-3">
+                    {activeLeader.overall < 3.0 ? (
+                      <>
+                        <li className="flex gap-2"><span>•</span><span>Tingkatkan <b>Frekuensi Komunikasi</b>. Jadwalkan 1-on-1 mingguan yang fokus mendengarkan keluhan bawahan, bukan sekadar menagih tugas.</span></li>
+                        <li className="flex gap-2"><span>•</span><span>Praktikkan <b>Openness (Keterbukaan)</b>. Terima kritik tanpa defensif untuk membangun kembali rasa percaya (trust).</span></li>
+                        <li className="flex gap-2"><span>•</span><span>Perbaiki <b>Akurasi Instruksi</b>. Pastikan ekspektasi kerja disampaikan dengan sangat jelas dan tertulis jika perlu.</span></li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="flex gap-2"><span>•</span><span>Jaga ritme <b>Feedback Dua Arah</b>. Pastikan bawahan merasa nyaman memberikan masukan balik.</span></li>
+                        <li className="flex gap-2"><span>•</span><span>Tingkatkan transparansi dalam pengambilan keputusan tim.</span></li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+
+                <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+                  <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">👥 Untuk Karyawan (Tim)</h4>
+                  <ul className="text-xs text-slate-600 space-y-3">
+                    {activeLeader.overall < 3.0 ? (
+                      <>
+                        <li className="flex gap-2"><span>•</span><span>Latih <b>Komunikasi Asertif</b>. Sampaikan kendala kerja secara objektif tanpa menyerang personal atasan.</span></li>
+                        <li className="flex gap-2"><span>•</span><span>Berikan <b>Feedback Konstruktif</b> jika ada instruksi yang membingungkan, jangan dibiarkan menggantung.</span></li>
+                        <li className="flex gap-2"><span>•</span><span>Gunakan forum resmi (seperti meeting evaluasi) untuk menyampaikan uneg-uneg secara profesional.</span></li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="flex gap-2"><span>•</span><span>Pertahankan komunikasi terbuka. Sampaikan ide-ide baru yang bisa membantu tugas atasan.</span></li>
+                        <li className="flex gap-2"><span>•</span><span>Aktif meminta <i>feedback</i> terkait performa individu secara berkala.</span></li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
